@@ -1,0 +1,31 @@
+# Contributor:
+# Maintainer:
+pkgname=mezzanine
+pkgver=0.1
+pkgrel=0
+pkgdesc="mezzanine"
+url="vektor.nyc"
+arch="noarch"
+license="MIT"
+depends=""
+makedepends=""
+install="$pkgname.post-install"
+subpackages=""
+source="
+motd.txt
+"
+builddir="$srcdir/"
+
+build() {
+	cd "$builddir"
+}
+
+package() {
+	cd "$builddir"
+  install -Dm755 motd.txt \
+    "$pkgdir"/usr/share/mezzanine/motd || return 1
+}
+
+md5sums="b0dc3f521c183a093b5e3a81ae7238ea  motd.txt"
+sha256sums="ef17b0578d175d9ae5ffff0a870acf857d88576597b7dc28b5edb51a52e97be6  motd.txt"
+sha512sums="b4df838d41933aa5bd4fcb3a75e88caf5b56b9618eb862b5a5a39acca7751d74dd0b7c66c4027b30252e13bba13502128acfe66bd059ea5fa2dd825dce254160  motd.txt"

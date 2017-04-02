@@ -1,0 +1,5 @@
+*.swp
+.abuild
+.packages
+iso/*.iso
+iso/isotmp.mezzanine

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+cat /usr/share/mezzanine/motd > /etc/motd || return 1
