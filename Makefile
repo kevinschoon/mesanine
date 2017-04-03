@@ -1,7 +1,7 @@
 PACKAGES := $(shell find ./packages/* -maxdepth 1 -type d |sed 's/\.\/packages\///')
 PWD := $(shell pwd)
 
-IMAGE := mezzanine-builder
+IMAGE := mesanine-builder
 HOME := /home/builder
 
 DOCKER := docker run --rm -ti
@@ -33,4 +33,4 @@ packages:
 .PHONY: iso
 iso:
 	$(DOCKER) $(MOUNTS) -w $(HOME)/target/iso $(IMAGE) \
-		fakeroot make PROFILE=mezzanine iso
+		fakeroot make PROFILE=mesanine iso

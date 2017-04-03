@@ -1,0 +1,31 @@
+# Contributor:
+# Maintainer:
+pkgname=mesanine
+pkgver=0.1
+pkgrel=0
+pkgdesc="mesanine"
+url="vektor.nyc"
+arch="noarch"
+license="MIT"
+depends=""
+makedepends=""
+install="$pkgname.post-install"
+subpackages=""
+source="
+motd.txt
+"
+builddir="$srcdir/"
+
+build() {
+	cd "$builddir"
+}
+
+package() {
+	cd "$builddir"
+  install -Dm755 motd.txt \
+    "$pkgdir"/usr/share/mesanine/motd || return 1
+}
+
+md5sums="5ad05886784675ee14cbfc8acda1ea19  motd.txt"
+sha256sums="68a61d50f7985633fb581f32ad2b16b579bb4f9603858551f12b5bfa0dcaa8d7  motd.txt"
+sha512sums="a498dfd1dce5ee3ff4db190e3c510931a6a9e276f811fd85ca94906fdb15b74f7838618f10458edb36bd8b26e8321f96d3bc6dab466bab6036874d16043c05de  motd.txt"
