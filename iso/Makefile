@@ -27,7 +27,7 @@ APKS		?= $(shell sed 's/\#.*//; s/\*/\\*/g' $(PROFILE).packages)
 APK_KEYS	?= /etc/apk/keys
 APK_OPTS	:= $(addprefix --repository ,$(APK_REPOS)) --keys-dir $(APK_KEYS) --repositories-file /etc/apk/repositories
 
-APK_FETCH_STDOUT := apk fetch $(APK_OPTS) --stdout --quiet
+APK_FETCH_STDOUT := apk fetch $(APK_OPTS) --stdout
 
 KERNEL_FLAVOR_DEFAULT	?= grsec
 KERNEL_FLAVOR	?= $(KERNEL_FLAVOR_DEFAULT)

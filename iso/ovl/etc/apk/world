@@ -1,1 +1,7 @@
-alpine-base acct mdadm mesanine
+alpine-base 
+acct
+docker
+mdadm 
+mesanine
+mesos
+openssh

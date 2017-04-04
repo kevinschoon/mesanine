@@ -7,14 +7,6 @@ openssh
 chrony
 tzdata
 acct
-mdadm
-apr
-fts
-db
-libsasl
-apr-util
-serf
-sqlite-libs
-subversion-libs
+openssh
 mesos
 mesanine
