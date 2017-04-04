@@ -12,3 +12,7 @@ Mesanine is a minimalist container-oriented Linux distribution based on [Alpine]
 ## packages
 
 The packages directory contains all of the sources for building packages on Mesanine. Some of these packages will be merged into Alpine while others are specific to Mesanine.
+
+## Running ISO
+
+    qemu-system-x86_64 -boot d -cdrom mesanine-170404-x86_64.iso -drive file=fat:rw:/tmp/share -m 512
