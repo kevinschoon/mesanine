@@ -16,3 +16,8 @@ The packages directory contains all of the sources for building packages on Mesa
 ## Running ISO
 
     qemu-system-x86_64 -boot d -cdrom mesanine-170404-x86_64.iso -drive file=fat:rw:/tmp/share -m 512
+
+## Bootchart
+
+![chart](bootchart.png)
+
