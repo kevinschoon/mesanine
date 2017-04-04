@@ -16,7 +16,7 @@ all: docker packages
 
 .PHONY: clean
 clean:
-	rm -Rf .packages/builder/x86_64/*
+	rm -Rf .packages/*
 
 .PHONY: docker
 docker:
@@ -32,5 +32,7 @@ packages:
 
 .PHONY: iso
 iso:
+	cd iso && \
+			tar czf mesanine.apkovl.tar.gz -C ovl .
 	$(DOCKER) $(MOUNTS) -w $(HOME)/target/iso $(IMAGE) \
 		fakeroot make PROFILE=mesanine iso

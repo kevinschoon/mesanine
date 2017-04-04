@@ -34,6 +34,10 @@ KERNEL_FLAVOR	?= $(KERNEL_FLAVOR_DEFAULT)
 CUR_KERNEL_FLAVOR	= $*
 CUR_KERNEL_PKGNAME	= linux-$*
 
+
+list:
+	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | xargs
+
 all: isofs
 
 help:
@@ -127,7 +131,7 @@ INITFS_DIR	= $(DESTDIR)/initfs.$*
 INITFS_TMP	= $(DESTDIR)/tmp.initfs.$*
 INITFS_DIRSTAMP := $(DESTDIR)/stamp.initfs.%
 INITFS_FEATURES	?= ata base bootchart cdrom squashfs ext2 ext3 ext4 mmc raid scsi usb virtio
-INITFS_PKGS	= $(MODLOOP_PKGS) alpine-base acct mdadm
+INITFS_PKGS	= $(MODLOOP_PKGS) alpine-base acct mdadm mesanine
 
 initfs-%: $(INITFS)
 	@:
@@ -256,7 +260,7 @@ else
 	@for flavor in $(KERNEL_FLAVOR); do \
 		echo "label $$flavor"; \
 		echo "	kernel /boot/$(call VMLINUZ_NAME,$$flavor)";\
-		echo "	append initrd=/boot/initramfs-$$flavor modloop=/boot/modloop-$$flavor modules=loop,squashfs,sd-mod,usb-storage quiet $(BOOT_OPTS)"; \
+		echo "	append initrd=/boot/initramfs-$$flavor modloop=/boot/modloop-$$flavor modules=loop,squashfs,sd-mod,usb-storage $(BOOT_OPTS)"; \
 	done >>$@
 endif
 
@@ -312,7 +316,7 @@ APKOVL_STAMP = $(DESTDIR)/stamp.isofs.apkovl
 
 $(APKOVL_STAMP):
 	@if [ "x$(APKOVL)" != "x" ]; then \
-		(cd $(ISO_DIR); wget $(APKOVL)); \
+		(cp -v $(APKOVL) $(ISO_DIR)); \
 	fi
 	@touch $@
 
