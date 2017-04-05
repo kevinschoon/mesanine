@@ -1,0 +1,35 @@
+# Maintainer: Kevin Schoon <kevinschoon@gmail.com>
+pkgname=ignition
+pkgver=0.14.0
+pkgrel=0
+pkgdesc="First boot installer and configuration tool"
+url="https://github.com/coreos/ignition"
+arch="x86_64"
+license="ASL 2.0"
+depends=""
+depends_dev="go"
+makedepends="$depends_dev"
+install=""
+subpackages=""
+source="
+${pkgname}-v${pkgver}.tar.gz::https://github.com/coreos/ignition/archive/v${pkgver}.tar.gz
+include-wait.patch
+"
+
+build() {
+  cd "${srcdir}/ignition-${pkgver}" \
+  && sed 's/VERSION=.*//' build | VERSION=${pkgver} sh - || return 1
+}
+
+package() {
+  cd "${srcdir}/ignition-${pkgver}" \
+  && install -Dm755 bin/amd64/ignition \
+  "$pkgdir"/usr/sbin/ignition || return 1
+}
+
+md5sums="e32ce335bcc6e285345767ed2b61d140  ignition-v0.14.0.tar.gz
+d34344200dea2766a9689f9a85ef7c4f  include-wait.patch"
+sha256sums="4a76638f0255a995b729d8595e325784c7b53bad7c1cba687ed1d65c1f3d3a1a  ignition-v0.14.0.tar.gz
+d26a256765bae5916c9c6d3376cba30a561920c0de15892a25380b6605050ee6  include-wait.patch"
+sha512sums="517fadefc64b58c66e610bc16f62f3e9d29af764a2d654c8660a74cff13c1cfe7b739396cc673b80b60d572b8940cd01eec52ad70582e1739029c983429ebcce  ignition-v0.14.0.tar.gz
+212d31cfb3176d6e32f11248dfb7a3eb00fad5eb5e7fd2b49074fe53cd6adab78acd4a6dc6aef5ba8cf49f3211abe03b01f7246b5cad4a8db67e2994c1f57744  include-wait.patch"
