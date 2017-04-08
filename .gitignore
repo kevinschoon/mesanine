@@ -1,6 +1,7 @@
 *.swp
 .abuild
 .packages
+.apk-cache
 iso/*.iso
 iso/isotmp.mesanine
 iso/mesanine.apkovl.tar.gz
