@@ -1,12 +1,12 @@
 # Page settings
 baseurl = "localhost:1313"
-title = "mesanine"
+title = "Elate theme"
 languageCode = "en-us"
 theme = "hugo-elate-theme"
 
 [params]
   
-  #custom_css = ["css/custom1.css", "css/custom2.css"]
+  custom_css = ["css/mesanine.css"]
 
   # Meta
   author = ""
@@ -15,10 +15,8 @@ theme = "hugo-elate-theme"
   # Navigation
   [params.navigation]
     brand = "mesanine"
-    home = "Home"
+    home = "Get Started"
     work = "Work"
-    testimonials = "Testimonials"
-    services = "Services"
     about = "About"
     contact = "Contact"
 
@@ -39,43 +37,39 @@ theme = "hugo-elate-theme"
   
   # Hero section
   [params.hero]
-    title = "Mesos + Alpine = <3"
-    subtitle = 'The first Linux distribution built specifically for Apache Mesos'
+    title = "The first Linux distribution for Apache Mesos"
+    subtitle = "Effortlessly deploy, run, and scale, containers with the industry's most proven platform."
  
   # Intro section
   # Available icons: http://simplelineicons.com/
   [params.intro]
 
   [[params.intro.item]]
-    title = "Minimalism"
-    description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts."
+    title = "Download"
+    description = "Download the latest release"
     url = "#"
-    button = "Get In Touch"
+    button = "download"
     icon = "icon-bulb"
     img = "img_7.jpg"
 
   [[params.intro.item]]
-    title = "Security"
-    description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts."
+    title = "Configure"
+    description = "Configure"
     url = "#"
-    button = "Click Me"
+    button = "configure"
     icon = "icon-wrench"
     img = "img_8.jpg"
 
   [[params.intro.item]]
-    title = "Performance"
-    description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts."
+    title = "Download"
+    description = "Deploy"
     url = "#"
-    button = "Why us?"
+    button = "deploy"
     icon = "icon-rocket"
     img = "img_10.jpg"
 
   [params.intro.video]
-    enable = true
-    title = "Watch the video"
-    icon = "icon-play2"
-    url = "https://vimeo.com/channels/staffpicks/93951774"
-
+    enable = false
 
   # Work section
   [params.work]
@@ -87,26 +81,26 @@ theme = "hugo-elate-theme"
     [[params.work.row]]
       img = "work_1.jpg"
       alt = "Image2"
-      title = "Project 1"
-      subtitle = "Branding"
+      title = "Scalable"
+      subtitle = "Scale"
 
     [[params.work.row]]
       img = "work_2.jpg"
       alt = "Image2"
-      title = "Project 2"
-      subtitle = "Design"
+      title = "Stateless"
+      subtitle = "stateless"
 
     [[params.work.row]]
       img = "work_3.jpg"
       alt = "Image3"
-      title = "Project 3"
-      subtitle = "Design"
+      title = "Modern"
+      subtitle = "modern"
 
     [[params.work.row]]
       img = "work_4.jpg"
       alt = "Image4"
-      title = "Project 4"
-      subtitle = "Design"
+      title = "Dope AF"
+      subtitle = "DAF"
 
     [[params.work.row]]
       img = "work_5.jpg"
@@ -122,55 +116,11 @@ theme = "hugo-elate-theme"
 
   # Testimonials section
   [params.testimonials]
-    enable = true
-    title = "Testimonials"
-    description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts."
-
-    [[params.testimonials.item]]
-      quote = "&ldquo;Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean.&rdquo;"
-      person = 'Jean Doe, CEO <a href="http://freehtml5.co/" target="_blank">FREEHTML5.co</a> <span class="subtext">Creative Director</span>'
-      img = "person1.jpg"
-      alt = "Person1"
-
-    [[params.testimonials.item]]
-      quote = "&ldquo;Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean. Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.&rdquo;"
-      person = 'John Doe, Senior UI <a href="http://freehtml5.co/" target="_blank">FREEHTML5.co</a> <span class="subtext">Creative Director</span>'
-      img = "person2.jpg"
-      alt = "Person2"
-
-    [[params.testimonials.item]]
-      quote = "&ldquo;Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. &rdquo;"
-      person = 'Chris Nash, Director <a href="http://freehtml5.co/" target="_blank">FREEHTML5.co</a> <span class="subtext">Creative Director</span>'
-      img = "person3.jpg"
-      alt = "Person3"
-    
-
-
+    enable = false
 
   # Services section
   [params.services]
-    enable = true
-    title = "Services"
-    description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts."
-
-    [[params.services.item]]
-      title = "Brand &amp; Strategy"
-      description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean"
-      icon = "icon-anchor"
-
-    [[params.services.item]]
-      title = "Web &amp; Interface"
-      description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean"
-      icon = "icon-layers2"
-    [[params.services.item]]
-      title = "Photo &amp; Video"
-      description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean"
-      icon = "icon-video2"
-
-      [[params.services.item]]
-      title = "CMS &amp; eCommerce"
-      description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean"      
-      icon = "icon-monitor"
+    enable = false
 
   # About section
   [params.about]
@@ -216,46 +166,12 @@ theme = "hugo-elate-theme"
 
   # Counters section
   [params.counters]
-    enable = true
-    title = "Stats"
-    background = "full_image_1.jpg"
-
-    [[params.counters.item]]
-      description = "Finished projects"
-      icon = "icon-briefcase"
-      from = 0
-      to = 89
-      interval = 50
-      speed = 5000
-
-    [[params.counters.item]]
-      description = "Lines of code"
-      icon = "icon-code"
-      from = 0
-      to = 2343409
-      interval = 50
-      speed = 5000
-
-    [[params.counters.item]]
-      description = "Cups of coffee"
-      icon = "icon-cup"
-      from = 0
-      to = 1302
-      interval = 50
-      speed = 5000
-
-    [[params.counters.item]]
-      description = "Happy clients"
-      icon = "icon-people"
-      from = 0
-      to = 52
-      interval = 50
-      speed = 5000
+    enable = false
 
   # Contact section
   [params.contact]
     enable = true
-    map = true
+    map = false
     title = "Get in touch"
     description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts."
     
