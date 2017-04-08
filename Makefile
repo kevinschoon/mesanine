@@ -1,3 +1,5 @@
+-include iso.mk
+
 PACKAGES := $(shell find ./packages/* -maxdepth 1 -type d |sed 's/\.\/packages\///')
 PWD := $(shell pwd)
 
@@ -16,15 +18,11 @@ MOUNTS := \
 all: docker packages
 
 .PHONY: clean
-clean: clean-packages clean-iso
+clean: clean-iso
 
 .PHONY: clean-packages
 clean-packages:
 	rm -Rf .packages/*
-
-.PHONY: clean-iso
-clean-iso:
-	rm -Rf iso/mesanine.apkovl.tar.gz iso/mesanine.iso iso/mesanine-*.iso iso/isotmp.mesanine/
 
 .PHONY: docker
 docker:
@@ -40,8 +38,4 @@ packages:
 
 .PHONY: iso
 iso:
-	# TODO Need to change permissions in etc/ before compressing into tar
-	$(DOCKER) $(MOUNTS) -w $(HOME)/target $(IMAGE) tar czf iso/mesanine.apkovl.tar.gz -C iso/ovl .
-	$(DOCKER) $(MOUNTS) $(IMAGE) sudo apk update
-	$(DOCKER) $(MOUNTS) -w $(HOME)/target/iso $(IMAGE) \
-		fakeroot make PROFILE=mesanine iso
+	$(DOCKER) $(MOUNTS) $(IMAGE) fakeroot $(MAKE) build-iso
