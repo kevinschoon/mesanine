@@ -1,4 +1,5 @@
 *.swp
+*.iso
 .abuild
 .packages
 .apk-cache
