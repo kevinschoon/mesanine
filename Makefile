@@ -1,5 +1,3 @@
--include iso.mk
-
 PACKAGES := $(shell find ./packages/* -maxdepth 1 -type d |sed 's/\.\/packages\///')
 PWD := $(shell pwd)
 
@@ -15,10 +13,14 @@ MOUNTS := \
 
 
 .PHONY: all
-all: docker packages
+all: docker packages mkinitfs iso
 
 .PHONY: clean
-clean: clean-iso
+clean:
+	cd mkinitfs \
+		&& make clean \
+		&& cd ../iso \
+		&& make clean
 
 .PHONY: clean-packages
 clean-packages:
@@ -36,6 +38,11 @@ packages:
 		abuild -r; \
 	done
 
+.PHONY: mkinitfs
+mkinitfs:
+	$(DOCKER) $(MOUNTS) -w $(HOME)/target/mkinitfs $(IMAGE) make
+
 .PHONY: iso
 iso:
-	$(DOCKER) $(MOUNTS) $(IMAGE) fakeroot $(MAKE) build-iso
+	$(DOCKER) $(MOUNTS) -w $(HOME)/target/iso $(IMAGE) "sudo apk add ../.packages/x86_64/ignition-*.apk && fakeroot make iso"
+

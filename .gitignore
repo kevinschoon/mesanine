@@ -1,8 +1,12 @@
+*.o
 *.swp
 *.iso
 .abuild
 .packages
 .apk-cache
+mkinitfs/bootchartd
+mkinitfs/initramfs-init
+mkinitfs/nlplugfindfs
 iso/*.iso
 iso/isotmp.mesanine
 iso/mesanine.apkovl.tar.gz

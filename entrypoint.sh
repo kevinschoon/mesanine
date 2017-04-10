@@ -18,5 +18,5 @@ sudo cp -v $HOME/.abuild/*.rsa.pub /etc/apk/keys/
 # TODO: Better way to do this?
 sudo chown -R builder:builder $HOME
 
-exec $@
+/bin/sh -c "$@"
 
