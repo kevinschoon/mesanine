@@ -6,7 +6,7 @@ MODLOOP_EXTRA   :=
 KERNEL_FLAVOR   := grsec
 KERNEL_FLAVOR_DEFAULT := grsec
 SYSLINUX_SERIAL	:= serial 0 115200
-BOOT_OPTS	:= KOPT_chart=yes KOPT_ignition_oem=qemu console=tty0 console=ttyS0,115200 single
+BOOT_OPTS	:= KOPT_chart=yes KOPT_ignition_oem=qemu console=tty0 console=ttyS0,115200
 
 BUILD_DATE	:= $(shell date +%y%m%d)
 ALPINE_RELEASE	?= $(BUILD_DATE)
@@ -38,6 +38,7 @@ APKS := bkeymaps \
 	acct \
 	openssh \
 	ignition \
+	mesos \
 	mesanine-base
 
 APK_KEYS	?= /etc/apk/keys
