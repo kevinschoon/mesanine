@@ -9,7 +9,6 @@ MOUNTS := \
 -v $(PWD):$(HOME)/target \
 -v $(PWD)/.packages:$(HOME)/packages/packages \
 -v $(PWD)/.abuild:$(HOME)/.abuild \
--v $(PWD)/.apk-cache:/var/cache/apk \
 
 
 .PHONY: all
@@ -35,7 +34,7 @@ packages:
 	@echo "Building packages $(PACKAGES)"
 	for i in $(PACKAGES); do \
 		$(DOCKER) $(MOUNTS) -w $(HOME)/target/packages/$$i $(IMAGE) \
-		abuild -r; \
+		abuild -r ; \
 	done
 
 .PHONY: mkinitfs
@@ -44,5 +43,5 @@ mkinitfs:
 
 .PHONY: iso
 iso:
-	$(DOCKER) $(MOUNTS) -w $(HOME)/target/iso $(IMAGE) "sudo apk add ../.packages/x86_64/ignition-*.apk && fakeroot make iso"
+	@echo $(DOCKER) $(MOUNTS) -w $(HOME)/target/iso $(IMAGE) "sudo apk add ../.packages/x86_64/ignition-*.apk && fakeroot make iso"
 
