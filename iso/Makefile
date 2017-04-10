@@ -3,10 +3,10 @@
 PROFILE					:= mesanine
 ALPINE_NAME     := $(PROFILE)
 MODLOOP_EXTRA   := 
-KERNEL_FLAVOR   := virtgrsec
-KERNEL_FLAVOR_DEFAULT := virtgrsec
+KERNEL_FLAVOR   := grsec
+KERNEL_FLAVOR_DEFAULT := grsec
 SYSLINUX_SERIAL	:= serial 0 115200
-BOOT_OPTS	:= KOPT_chart=yes KOPT_ignition_oem=qemu console=tty0 console=ttyS0,115200
+BOOT_OPTS	:= KOPT_chart=yes KOPT_ignition_oem=qemu console=tty0 console=ttyS0,115200 single
 
 BUILD_DATE	:= $(shell date +%y%m%d)
 ALPINE_RELEASE	?= $(BUILD_DATE)
@@ -143,7 +143,7 @@ INITFS		:= $(ISO_DIR)/boot/$(INITFS_NAME)
 INITFS_DIR	= $(DESTDIR)/initfs.$*
 INITFS_TMP	= $(DESTDIR)/tmp.initfs.$*
 INITFS_DIRSTAMP := $(DESTDIR)/stamp.initfs.%
-INITFS_FEATURES	?= ata base bootchart cdrom squashfs ext2 ext3 ext4 mmc raid scsi usb virtio
+INITFS_FEATURES	?= ata base bootchart cdrom squashfs ext2 ext3 ext4 mmc qemu raid scsi usb virtio
 INITFS_PKGS	= $(MODLOOP_PKGS) alpine-base acct mdadm ignition
 
 initfs-%: $(INITFS)
@@ -292,7 +292,6 @@ $(ISO): $(ISOFS_DIRSTAMP)
 iso: $(ISO)
 
 clean: clean-iso
-	rmdir isotmp.mesanine
 
 release_targets := $(ISO)
 SHA1	:= $(ISO).sha1

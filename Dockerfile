@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM alpine:edge
 
 ENV AMITOOLS_VERSION=1.5.7
 ENV EC2_AMITOOL_HOME=/usr/local/ec2-ami-tools-$AMITOOLS_VERSION

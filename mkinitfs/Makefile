@@ -35,6 +35,7 @@ CONF_FILES	:= mkinitfs.conf \
 		features.d/network.modules \
 		features.d/nvme.modules \
 		features.d/ocfs2.modules \
+		features.d/qemu.modules \
 		features.d/raid.files \
 		features.d/raid.modules \
 		features.d/reiserfs.modules \
