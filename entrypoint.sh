@@ -4,7 +4,7 @@ set -e
 ABUILD="$HOME/.abuild"
 PACKAGES="$HOME/packages/packages"
 
-[ ! -d "$ABUILD" ] && {
+[ ! -f "$ABUILD"/*.pub ] && {
   abuild-keygen -ain
 }
 
