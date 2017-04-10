@@ -378,9 +378,6 @@ if [ -n "$KOPT_nbd" ]; then
 	setup_nbd || echo "Failed to setup nbd device."
 fi
 
-if [ -n "$KOPT_ignition_oem" ]; then
-  run_ignition $KOPT_ignition_oem || echo "Ignition failed"
-fi
 
 # zpool reports /dev/zfs missing if it can't read /etc/mtab
 ln -s /proc/mounts /etc/mtab
@@ -570,7 +567,7 @@ elif [ -f /etc/fstab ]; then
 fi
 
 # hack so we get openrc
-pkgs="$pkgs alpine-base"
+pkgs="$pkgs alpine-base mesanine-base"
 
 # copy keys so apk finds them. apk looks for stuff relative --root
 mkdir -p $sysroot/etc/apk/keys/
@@ -676,6 +673,11 @@ if [ ! -x $sysroot/sbin/init ]; then
 	echo "/sbin/init not found in new root. Launching emergency recovery shell"
 	echo "Type exit to continue boot."
 	/bin/busybox sh
+fi
+
+if [ -n "$KOPT_ignition_oem" ]; then
+  configure_ip
+  run_ignition $KOPT_ignition_oem || echo "Ignition failed"
 fi
 
 # switch over to new root
