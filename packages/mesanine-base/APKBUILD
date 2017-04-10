@@ -1,0 +1,45 @@
+pkgname=mesanine-base
+pkgver=0.1
+pkgrel=0
+pkgdesc="Mesanine Meta Package"
+url="http://mesanine.co"
+arch="noarch"
+license="MIT"
+depends="mesos"
+#depends="alpine-baselayout alpine-conf apk-tools busybox busybox-suid busybox-initscripts
+#	openrc libc-utils alpine-keys"
+makedepends=""
+install=""
+subpackages=""
+replaces="alpine-base"
+source=""
+
+build() {
+	return 0
+}
+
+package() {
+	mkdir -p "$pkgdir"/etc
+	# create /etc/alpine-release
+	echo $pkgver > "$pkgdir"/etc/mesanine-release
+
+	# create /etc/issue
+	cat >"$pkgdir"/etc/issue<<EOF
+                                   _               
+                                  (_)              
+ ____   _____   ___  _____  ____   _  ____   _____ 
+|    \ | ___ | /___)(____ ||  _ \ | ||  _ \ | ___ |
+| | | || ____||___ |/ ___ || | | || || | | || ____|
+|_|_|_||_____)(___/ \_____||_| |_||_||_| |_||_____)
+                                            $pkgver          
+EOF
+
+	# create os-release
+	cat >"$pkgdir"/etc/os-release<<EOF
+NAME="Mesanine"
+ID=mesanine
+VERSION_ID=$pkgver
+PRETTY_NAME="Mesanine $pkgver"
+HOME_URL="http://mesanine.co"
+EOF
+}

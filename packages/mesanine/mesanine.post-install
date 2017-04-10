@@ -1,3 +1,0 @@
-#!/bin/sh
-
-cat /usr/share/mesanine/motd > /etc/motd || return 1
