@@ -1,6 +1,6 @@
 # Page settings
 baseurl = "localhost:1313"
-title = "Elate theme"
+title = "Mesanine OS"
 languageCode = "en-us"
 theme = "hugo-elate-theme"
 
@@ -9,15 +9,15 @@ theme = "hugo-elate-theme"
   custom_css = ["css/mesanine.css"]
 
   # Meta
-  author = ""
-  description = ""
-  email = ""
+  author = "mesanine linux"
+  description = "Linux distribution for running Apache Mesos"
+  email = "info@mesanine.co"
   # Navigation
   [params.navigation]
     brand = "mesanine"
-    home = "Get Started"
-    work = "Work"
-    about = "About"
+    home = "Home"
+    work = "About"
+    services = "Products"
     contact = "Contact"
 
     # You can add custom links before or after the default links
@@ -45,7 +45,7 @@ theme = "hugo-elate-theme"
   [params.intro]
 
   [[params.intro.item]]
-    title = "Download"
+    title = "Getting Started"
     description = "Download the latest release"
     url = "#"
     button = "download"
@@ -53,18 +53,18 @@ theme = "hugo-elate-theme"
     img = "img_7.jpg"
 
   [[params.intro.item]]
-    title = "Configure"
-    description = "Configure"
+    title = "Learn"
+    description = "Read the documentation"
     url = "#"
-    button = "configure"
+    button = "learn"
     icon = "icon-wrench"
     img = "img_8.jpg"
 
   [[params.intro.item]]
-    title = "Download"
-    description = "Deploy"
+    title = "Profit"
+    description = "Learn about the benifits of containerization"
     url = "#"
-    button = "deploy"
+    button = "profit"
     icon = "icon-rocket"
     img = "img_10.jpg"
 
@@ -74,45 +74,45 @@ theme = "hugo-elate-theme"
   # Work section
   [params.work]
     enable = true
-    title = "Work"
-    description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts."
-    footertext = '** Demo images from <a href="http://plmd.me/" target="_blank">plmd.me</a>'
+    title = "About"
+    description = "Mesanine Linux is designed to ease the pains and complexities of running containers at scale with the most powerful platform in the industry."
+    footertext = ''
 
     [[params.work.row]]
       img = "work_1.jpg"
       alt = "Image2"
-      title = "Scalable"
-      subtitle = "Scale"
+      title = "Minimal"
+      subtitle = "Minimal at heart"
 
     [[params.work.row]]
       img = "work_2.jpg"
       alt = "Image2"
       title = "Stateless"
-      subtitle = "stateless"
+      subtitle = 'The end of "configuration drift"'
 
     [[params.work.row]]
       img = "work_3.jpg"
       alt = "Image3"
-      title = "Modern"
-      subtitle = "modern"
+      title = "Container-oriented"
+      subtitle = "Container-oriented at heart"
 
     [[params.work.row]]
       img = "work_4.jpg"
       alt = "Image4"
-      title = "Dope AF"
-      subtitle = "DAF"
+      title = "Proven"
+      subtitle = "The most proven containerization platform"
 
     [[params.work.row]]
       img = "work_5.jpg"
       alt = "Image5"
-      title = "Project 5"
-      subtitle = "Design"
+      title = "Secure"
+        subtitle = "Minimal attack surface, grsecurity and musl-libc"
 
     [[params.work.row]]
       img = "work_6.jpg"
       alt = "Image6"
-      title = "Project 6"
-      subtitle = "Design"
+      title = "Flexible"
+      subtitle = "Pick and choose the compontents you need"
 
   # Testimonials section
   [params.testimonials]
@@ -120,11 +120,23 @@ theme = "hugo-elate-theme"
 
   # Services section
   [params.services]
-    enable = false
+    enable = true
+    title = "Products"
+    description = "Mesanine Linux offers enterprise features to sustain itself"
+
+    [[params.services.item]]
+        title = "mesos.co"
+      description = "mesos.co provides a centralized configuration and coordination for enterprise deployments"
+      icon = "icon-anchor"
+
+    [[params.services.item]]
+      title = "consulting services"
+      description = "mesanine offers professional consulting services"
+      icon = "icon-layers2"
 
   # About section
   [params.about]
-    enable = true
+    enable = false
     title = "About"
     description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts."
 
@@ -173,23 +185,20 @@ theme = "hugo-elate-theme"
     enable = true
     map = false
     title = "Get in touch"
-    description = "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts."
+    description = "Mesanine Linux is still in alpha, drop us your name and e-mail and we'll be in touch."
     
     # Available icons: http://simplelineicons.com/
     details = [
-        ["icon-home", "5555 Love Paradise 56 New Clity 5655, <br> Excel Tower United Kingdom"],
-        ["icon-phone", "(123) 465-6789"],
-        ["icon-envelope", "info@freehtml5.co"],
-        ["icon-globe", '<a href="http://freehtml5.co/" target="_blank">freehtml5.co</a>']
+        ["icon-envelope", "info@mesanine.co"],
+        ["icon-globe", '<a href="http://mesanine.co/" target="_blank">mesanine.co</a>']
       ]
 
     name = "Name"
     email = "Email"
-    phone = "Phone"
     message = "Message"
     button = "Send message"
 
   # Footer section
   [params.footer]
     enable = true
-    copyright = '&copy; Elate Free HTML5. All Rights Reserved. <br>Created by <a href="http://freehtml5.co/" target="_blank">FREEHTML5.co</a> Images: <a href="http://pexels.com/" target="_blank">Pexels</a>, <a href="http://plmd.me/" target="_blank">plmd.me</a> <br>Hugo port by: <a href="https://github.com/saey55" target="_blank">saey55</a>'
+    copyright = '&copy; Mesanine Linux. All Rights Reserved. <br>Crafted with ♥ by <a href="http://vektor.nyc" target="_blank">vektorlab</a>'
