@@ -43,5 +43,5 @@ mkinitfs:
 
 .PHONY: iso
 iso:
-	@echo $(DOCKER) $(MOUNTS) -w $(HOME)/target/iso $(IMAGE) "sudo apk add ../.packages/x86_64/ignition-*.apk && fakeroot make iso"
+	$(DOCKER) $(MOUNTS) -w $(HOME)/target/iso -e APK_UPDATE=1 -e WITH_PACKAGES=ignition $(IMAGE) fakeroot make iso
 

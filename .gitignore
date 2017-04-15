@@ -7,6 +7,7 @@
 mkinitfs/bootchartd
 mkinitfs/initramfs-init
 mkinitfs/nlplugfindfs
+mkinitfs/mkinitfs
 iso/*.iso
 iso/isotmp.mesanine
 iso/mesanine.apkovl.tar.gz

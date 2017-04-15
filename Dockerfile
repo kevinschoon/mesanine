@@ -33,7 +33,6 @@ RUN cd /tmp/mkinitfs \
   && make install
 
 COPY entrypoint.sh /
-USER builder
 WORKDIR /home/builder/target
-
+CMD "/bin/sh"
 ENTRYPOINT ["/entrypoint.sh"]
