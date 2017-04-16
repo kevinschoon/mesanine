@@ -1,3 +1,33 @@
+/*
+ pallete: 
+ f7d4ca, b43232, 5d3e49, 6a4b54, ad2c2c
+ */
+
+a {
+  color: #b43232;
+}
+
+li.active a {
+  color: #b43232;
+}
+
+#fh5co-header.navbar-fixed-top #navbar li.active a {
+  color: #b43232;
+}
+
+#fh5co-header.navbar-fixed-top #navbar li.active a span:before {
+  background-color: #f7d4ca;
+}
+
+.btn.btn-primary {
+  background: #b43232;
+}
+
+#fh5co-header.navbar-fixed-top .navbar-brand {
+    color: #ad2c2c;
+}
+
+
 #fh5co-home .gradient {
   background-color: #000;
   background-image: !important none;
@@ -6,4 +36,13 @@
 #fh5co-home .gradient {
   opacity: 0.4;
   background-image: none;
+}
+
+#fh5co-work {
+  background-image: repeating-linear-gradient(to bottom right, #b43232 0%, #6a4b54 100%);
+}
+
+
+#fh5co-services {
+  background-image: repeating-linear-gradient(to bottom right, #b43232 0%, #6a4b54 100%);
 }
