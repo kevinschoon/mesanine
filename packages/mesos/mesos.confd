@@ -1,5 +1,0 @@
-# Apache Mesos configuration options
-# See http://mesos.apache.org/documentation/latest/configuration/
-
-MESOS_LOG_DIR=/tmp
-MESOS_WORK_DIR=/tmp
