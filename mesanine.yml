@@ -2,7 +2,7 @@ kernel:
   image: "linuxkit/kernel:4.9.x"
   cmdline: "console=ttyS0 console=tty0 page_poison=1"
 init:
-  - linuxkit/init:63eed9ca7a09d2ce4c0c5e7238ac005fa44f564b
+  - mesanine/init
   - linuxkit/runc:b0fb122e10dbb7e4e45115177a61a3f8d68c19a9
   - linuxkit/containerd:18eaf72f3f4f9a9f29ca1951f66df701f873060b
   - linuxkit/ca-certificates:eabc5a6e59f05aa91529d80e9a595b85b046f935
@@ -41,7 +41,7 @@ services:
       - CAP_SETGID
     net: host
   - name: sshd
-    image: "linuxkit/sshd:e108d208adf692c8a0954f602743e0eec445364e"
+    image: mesanine/sshd
     capabilities:
       - all
     net: host
