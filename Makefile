@@ -1,7 +1,7 @@
 PWD := $(shell pwd)
 MOBY := $(shell which moby)
 TARGET := "./target"
-PACKAGES := $(shell find ./pkg -maxdepth 1 -type d |sed 's/\.\/pkg\///')
+PACKAGES := $(shell find ./pkg -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
 IMAGES := $(TARGET)/mesanine-bzImage $(TARGET)/mesanine-initrd.img $(TARGET)/mesanine-cmdline
 
 .PHONY: all
