@@ -5,18 +5,17 @@ PACKAGES := $(shell find ./pkg -maxdepth 1 -type d |sed 's/\.\/pkg\///')
 IMAGES := $(TARGET)/mesanine-bzImage $(TARGET)/mesanine-initrd.img $(TARGET)/mesanine-cmdline
 
 .PHONY: all
-all: packages $(IMAGES)
+all: build
 
-.PHONY: clean
-	rm -rf $(TARGET)/**
-
-$(IMAGES):
-	moby build mesanine.yml
-	mv -v mesanine-* $(TARGET)
-
-.PHONY: packages
-packages:
+.PHONY: build
+build:
 	@echo "Building packages $(PACKAGES)"
 	for i in $(PACKAGES); do \
 		docker build -t mesanine/$$i pkg/$$i ; \
 	done
+	moby build mesanine.yml
+	mv -v mesanine-* $(TARGET)
+
+.PHONY: clean
+	rm -rf $(TARGET)/**
+
