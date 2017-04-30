@@ -27,7 +27,7 @@ To run Mesanine locally you need to use qemu and expose ports for the Mesos HTTP
 You should specify your public RSA key in `mesanine.yml` before building.
 
     cd target
-    qemu-system-x86_64 -device virtio-rng-pci -smp 1 -m 1024 -enable-kvm -machine q35,accel=kvm:tcg -kernel mesanine-bzImage -initrd mesanine-initrd.img -append "console=ttyS0 console=tty0 page_poison=1" -nographic -net nic,vlan0,model=virtio -net user,vlan=0,hostfwd=tcp::2222-:22,hostfwd=tcp::5050-:5050
+    qemu-system-x86_64 -device virtio-rng-pci -smp 1 -m 1024 -enable-kvm -machine q35,accel=kvm:tcg -kernel mesanine-bzImage -initrd mesanine-initrd.img -append "console=ttyS0 console=tty0 page_poison=1" -nographic -net nic,model=virtio -net user,hostfwd=tcp::2222-:22,hostfwd=tcp::5050-:5050
 
 
 #### aws
