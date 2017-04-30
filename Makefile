@@ -14,6 +14,9 @@ build:
 		docker build -t mesanine/$$i pkg/$$i ; \
 	done
 	moby build mesanine.yml
+	if [ ! -d $(TARGET) ]; then \
+		mkdir $(TARGET) ; \
+	fi
 	mv -v mesanine-* $(TARGET)
 
 .PHONY: clean
