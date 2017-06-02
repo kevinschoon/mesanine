@@ -2,6 +2,30 @@
 
 Mesanine is a minimalist container-oriented Linux distribution based on [Alpine](https://alpinelinux.org) for running [Apache Mesos](https://mesos.apache.org). It is assembled with [linuxkit](https://github.com/linuxkit/linuxkit).
 
+# Mesoscon Proposal
+
+http://events.linuxfoundation.org/events/mesoscon-north-america
+
+## Abstract
+_Provide an abstract that briefly summarizes your proposal._
+
+_This is the abstract that will be posted on the website schedule, so please ensure that it is in complete sentences (and not just bullet points) and that it is written in the third person (use your name instead of I)._
+
+Mesanine is the first Linux distribution designed specifically for the Apache Mesos favoring minimalism and a container-first approach. Mesanine allows for deep customization allowing users to "compile" a tailored distribution via Linux Kit. Mesanine will include several application packages that simplify cluster management and monitoring (Gaffer).
+
+## Audience
+_Describe who the audience is and what you expect them to gain from your presentation._
+
+Mesanine targets Mesos cluster operators.
+
+## Experience Level
+
+Intermediate
+
+## Benefits to the Ecosystem
+
+Mesanine will simplify Mesos deployments significantly.
+
 ## FAQ
 
   * How does Mesanine compare to CoreOS?
