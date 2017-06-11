@@ -44,36 +44,12 @@ theme = "hugo-elate-theme"
   # Available icons: http://simplelineicons.com/
   [params.intro]
 
-  [[params.intro.item]]
-    title = "Getting Started"
-    description = "Download the latest release"
-    url = "#"
-    button = "download"
-    icon = "icon-bulb"
-    img = "img_7.jpg"
-
-  [[params.intro.item]]
-    title = "Learn"
-    description = "Read the documentation"
-    url = "#"
-    button = "learn"
-    icon = "icon-wrench"
-    img = "img_8.jpg"
-
-  [[params.intro.item]]
-    title = "Scale"
-    description = "Scale further with Mesanine"
-    url = "#"
-    button = "profit"
-    icon = "icon-rocket"
-    img = "img_10.jpg"
-
   [params.intro.video]
     enable = false
 
   # Work section
   [params.work]
-    enable = true
+    enable = false
     title = "About"
     description = "Mesanine Linux is designed to ease the pains and complexities of running containers at scale with the most powerful platform in the industry."
     footertext = ''
@@ -120,7 +96,7 @@ theme = "hugo-elate-theme"
 
   # Services section
   [params.services]
-    enable = true
+    enable = false
     title = "Products"
     description = "Mesanine Linux offers enterprise features to sustain itself"
 
@@ -128,11 +104,6 @@ theme = "hugo-elate-theme"
         title = "mesos.co"
       description = "mesos.co provides a centralized configuration and coordination for enterprise deployments"
       icon = "icon-anchor"
-
-    [[params.services.item]]
-      title = "consulting services"
-      description = "mesanine offers professional consulting services"
-      icon = "icon-layers2"
 
   # About section
   [params.about]

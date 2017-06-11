@@ -1,0 +1,4 @@
+languageCode = "en-us"
+title = "Mesanine Docs"
+baseURL = "http://mesanine.co"
+theme = "hugo-theme-learn"

@@ -11,6 +11,14 @@ li.active a {
   color: #b43232;
 }
 
+img.brand {
+  max-height: 40px;
+}
+
+#fh5co-intro .fh5co-block {
+  width: 50% !important;
+}
+
 #fh5co-header.navbar-fixed-top #navbar li.active a {
   color: #b43232;
 }
