@@ -5,7 +5,6 @@ init:
   - mesanine/init
   - mesanine/runc
   - mesanine/gaffer
-  - mesanine/metadata
 
 onboot:
   - name: sysctl
@@ -15,6 +14,8 @@ onboot:
   - name: dhcpcd
     image: "mesanine/dhcpcd"
     command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+  - name: metadata
+    image: "mesanine/metadata"
 services:
   - name: getty
     image: "mesanine/getty"
@@ -48,3 +49,13 @@ services:
     mounts:
      - type: cgroup
        options: ["rw","nosuid","noexec","nodev","relatime"]
+  - name: zookeeper
+    image: mesanine/zookeeper
+    command: ["/entrypoint.sh", "zkServer.sh", "start-foreground"]
+    capabilities:
+      - all
+    net: host
+    pid: host
+    mounts:
+      - type: cgroup
+        options: ["rw", "nosuid", "noexec", "nodev", "relatime"]
