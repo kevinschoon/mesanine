@@ -1,0 +1,1 @@
+FROM linuxkit/binfmt:0bde4ebd422099f45c5ee03217413523ad2223e5

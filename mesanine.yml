@@ -1,65 +1,29 @@
-kernel:
-  image: "linuxkit/kernel:4.9.x"
-  cmdline: "console=ttyS0 console=tty0 page_poison=1"
+kernel: 
+  image: "linuxkit/kernel:4.9.x" 
+  cmdline: "console=ttyS0 console=tty0 page_poison=1" 
 init:
   - mesanine/init
-  - linuxkit/runc:b0fb122e10dbb7e4e45115177a61a3f8d68c19a9
-  - linuxkit/containerd:18eaf72f3f4f9a9f29ca1951f66df701f873060b
-  - linuxkit/ca-certificates:eabc5a6e59f05aa91529d80e9a595b85b046f935
+  - mesanine/runc
+  - mesanine/gaffer
+  - linuxkit/containerd:1e3e8f207421de8deac8cedc26a138d6b1661a0d
+
 onboot:
   - name: sysctl
-    image: "linuxkit/sysctl:2cf2f9d5b4d314ba1bfc22b2fe931924af666d8c"
-    net: host
-    pid: host
-    ipc: host
-    capabilities:
-     - CAP_SYS_ADMIN
-services:
-  - name: rngd
-    image: "linuxkit/rngd:3dad6dd43270fa632ac031e99d1947f20b22eec9"
-    capabilities:
-     - CAP_SYS_ADMIN
-    oomScoreAdj: -800
+    image: "mesanine/sysctl"
+  - name: binfmt
+    image: "mesanine/binfmt"
   - name: dhcpcd
-    image: "linuxkit/dhcpcd:48e249ebef6a521eed886b3bce032db69fbb4afa"
-    binds:
-     - /var:/var
-     - /tmp:/etc
-    capabilities:
-     - CAP_NET_ADMIN
-     - CAP_NET_BIND_SERVICE
-     - CAP_NET_RAW
-    net: host
-    oomScoreAdj: -800
-  - name: ntpd
-    image: "linuxkit/openntpd:a570316d7fc49ca1daa29bd945499f4963d227af"
-    capabilities:
-      - CAP_SYS_TIME
-      - CAP_SYS_NICE
-      - CAP_SYS_CHROOT
-      - CAP_SETUID
-      - CAP_SETGID
-    net: host
-  - name: sshd
-    image: mesanine/sshd
-    capabilities:
-      - all
-    net: host
-    pid: host
-    binds:
-     - /root/.ssh:/root/.ssh
-     - /etc/resolv.conf:/etc/resolv.conf
-  - name: nginx
-    image: "nginx:alpine"
-    capabilities:
-     - CAP_NET_BIND_SERVICE
-     - CAP_CHOWN
-     - CAP_SETUID
-     - CAP_SETGID
-     - CAP_DAC_OVERRIDE
-    net: host
+    image: "mesanine/dhcpcd"
+    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+services:
+  - name: getty
+    image: "mesanine/getty"
+    env:
+     - INSECURE=true
+#  - name: rngd TODO: not needed in qemu
+#    image: "linuxkit/rngd:b50b22dd574c5377708977af769f053009fff6d5"
   - name: mesos
-    image: quay.io/vektorcloud/mesos:combined-build
+    image: mesanine/mesos
     command: ["/entrypoint.sh", "mesos-local"]
     env:
       - "DISCOVER_IP=true"
@@ -84,8 +48,3 @@ services:
     mounts:
      - type: cgroup
        options: ["rw","nosuid","noexec","nodev","relatime"]
-files:
-  - path: root/.ssh/authorized_keys
-    contents: '# YOUR PUBLIC RSA KEY #'
-outputs:
-  - format: kernel+initrd

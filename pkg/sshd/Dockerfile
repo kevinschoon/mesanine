@@ -1,4 +1,4 @@
-FROM linuxkit/sshd:e108d208adf692c8a0954f602743e0eec445364e
+FROM linuxkit/sshd:abc1f5e096982ebc3fb61c506aed3ac9c2ae4d55
 
 COPY . .
 

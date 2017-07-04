@@ -1,0 +1,1 @@
+FROM linuxkit/rngd:1516d5d70683a5d925fe475eb1b6164a2f67ac3b

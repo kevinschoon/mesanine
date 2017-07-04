@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# set global ulimits TODO move to /etc/limits.conf
+ulimit -n 1048576
+ulimit -p unlimited
+
+if [ -d /containers ]
+then
+	for f in $(find /containers -mindepth 2 -maxdepth 2 | sort)
+  do
+    echo "Mounting $f/rootfs" > /dev/kmsg
+		/bin/mount --bind "$f/rootfs" "$f/rootfs"
+		mount -o remount,rw "$f/rootfs"
+		#service start "$(basename $f)"
+	done
+fi
+
+/usr/bin/gaffer init &
+
