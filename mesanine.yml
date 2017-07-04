@@ -5,7 +5,7 @@ init:
   - mesanine/init
   - mesanine/runc
   - mesanine/gaffer
-  - linuxkit/containerd:1e3e8f207421de8deac8cedc26a138d6b1661a0d
+  - mesanine/metadata
 
 onboot:
   - name: sysctl

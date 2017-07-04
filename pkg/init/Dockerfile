@@ -17,6 +17,7 @@ CMD []
 WORKDIR /
 COPY --from=build usermode-helper /sbin/
 COPY --from=mirror /out/ /
+COPY --from=mirror /usr/share/zoneinfo/UTC /etc/localtime
 COPY init /
 COPY etc etc/
 COPY bin bin/
