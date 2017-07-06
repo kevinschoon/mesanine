@@ -23,27 +23,27 @@ services:
      - INSECURE=true
 #  - name: rngd TODO: not needed in qemu
 #    image: "linuxkit/rngd:b50b22dd574c5377708977af769f053009fff6d5"
-  - name: mesos
+  - name: sshd
+    image: "mesanine/sshd"
+    binds:
+      - /var/config/ssh:/root/.ssh
+      - /etc/resolv.conf:/etc/resolv.conf
+      - /:/hostroot
+  - name: master
     image: mesanine/mesos
-    command: ["/entrypoint.sh", "mesos-local"]
-    env:
-      - "DISCOVER_IP=true"
-      - "MESOS_ZK=zk://localhost:2181/mesos"
-      - "MESOS_MASTER=zk://localhost:2181/mesos" 
-      - "MESOS_QUORUM=1" 
-      - "MESOS_WORK_DIR=/var/run/mesos" 
-      - "MESOS_LOG_DIR=/var/run/mesos/log" 
-      - "MESOS_CONTAINERIZERS=mesos" 
-      - "MESOS_EXECUTOR_REGISTRATION_TIMEOUT=5mins" 
-      - "MESOS_LAUNCHER=linux" 
-      - "MESOS_LOGGING_LEVEL=WARNING" 
-      - "MESOS_SYSTEMD_ENABLE_SUPPORT=false" 
-      - "MESOS_ISOLATION=cgroups/cpu,cgroups/mem,cgroups/pids,namespaces/pid,filesystem/shared,filesystem/linux,docker/runtime,volume/sandbox_path" 
-      - "MESOS_IMAGE_PROVIDERS=DOCKER,APPC"
+    command: ["/entrypoint.sh", "mesos-master"]
+    capabilities:
+      - CAP_NET_BIND_SERVICE
+    net: host
+    pid: host
+    mounts:
+     - type: cgroup
+       options: ["rw","nosuid","noexec","nodev","relatime"]
+  - name: agent
+    image: mesanine/mesos
+    command: ["/entrypoint.sh", "mesos-agent"]
     capabilities:
       - all
-    binds:
-      - /etc/resolv.conf:/etc/resolv.conf
     net: host
     pid: host
     mounts:
@@ -53,7 +53,7 @@ services:
     image: mesanine/zookeeper
     command: ["/entrypoint.sh", "zkServer.sh", "start-foreground"]
     capabilities:
-      - all
+      - CAP_NET_BIND_SERVICE
     net: host
     pid: host
     mounts:
