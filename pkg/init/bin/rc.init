@@ -87,7 +87,7 @@ fi
 if [ $(hostname) = "(none)" -a -f /sys/class/net/eth0/address ]
 then
 	mac=$(cat /sys/class/net/eth0/address)
-	hostname linuxkit-$(echo $mac | sed 's/://g')
+	hostname mesanine-$(echo $mac | sed 's/://g')
 fi
 
 # set system clock from hwclock

@@ -11,13 +11,18 @@ RUN apk add --no-cache --initdb -p /out alpine-baselayout busybox musl
 # Remove apk residuals. We have a read-only rootfs, so apk is of no use.
 RUN rm -rf /out/etc/apk /out/lib/apk /out/var/cache
 
+# Tz data seems to be broken, use our own
+FROM quay.io/vektorcloud/base:3.6 AS tz
+
+RUN apk add --no-cache tzdata
+
 FROM scratch
 ENTRYPOINT []
 CMD []
 WORKDIR /
 COPY --from=build usermode-helper /sbin/
 COPY --from=mirror /out/ /
-COPY --from=mirror /usr/share/zoneinfo/UTC /etc/localtime
+COPY --from=tz /usr/share/zoneinfo/UTC /etc/localtime
 COPY init /
 COPY etc etc/
 COPY bin bin/
