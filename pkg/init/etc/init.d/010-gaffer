@@ -1,9 +1,12 @@
 #!/bin/sh
 
+GAFFER="/usr/bin/gaffer"
+
 # set global ulimits TODO move to /etc/limits.conf
 ulimit -n 1048576
 ulimit -p unlimited
 
+# Remount onboot containers as rw
 if [ -d /containers ]
 then
 	for f in $(find /containers -mindepth 2 -maxdepth 2 | sort)
@@ -15,5 +18,28 @@ then
 	done
 fi
 
-/usr/bin/gaffer init &
+
+# Run each onboot container to completion
+$GAFFER --log=/dev/tty0 init --once /containers/onboot
+
+# Loading all of the service containers into tmpfs
+# utilizes way too much memory on cheaper EC2 instances
+# like T2 or M3. We want to save as much memory as possible
+# for running our applications. If there is a disk mounted 
+# below /var/external we will move all the service containers
+# from tmpfs to here. 
+EXT_MOUNT="/var/external"
+SERVICES_PATH="/containers/services"
+
+
+[[ -d "$EXT_MOUNT" ]] && {
+  echo "Moving services containers from $SERVICES_PATH to $EXT_MOUNT to save memory" > /dev/kmsg
+  # Remove anything already on the disk
+  rm -rf "$EXT_MOUNT/"
+  # Move services rootfs on the device
+  mv -v "$SERVICES_PATH" "$EXT_MOUNT"
+  SERVICES_PATH="$EXT_MOUNT/services"
+}
+
+$GAFFER --log=/dev/tty0 init "$SERVICES_PATH" &
 

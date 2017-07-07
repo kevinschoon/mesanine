@@ -14,15 +14,26 @@ onboot:
   - name: dhcpcd
     image: "mesanine/dhcpcd"
     command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+  - name: format
+    image: "mesanine/format"
+    command: ["/usr/bin/format", "/dev/sda"]
+  - name: mount
+    image: "mesanine/mount"
+    command: ["/usr/bin/mountie", "/var/external:/dev/sda1"]
   - name: metadata
     image: "mesanine/metadata"
 services:
   - name: getty
     image: "mesanine/getty"
     env:
-     - INSECURE=true
-#  - name: rngd TODO: not needed in qemu
-#    image: "linuxkit/rngd:b50b22dd574c5377708977af769f053009fff6d5"
+      - INSECURE=true
+  # TODO: This still does not seem to work
+  # properly. Need Entropy on boot and while 
+  # services are running?
+  #- name: rngd 
+  #  image: "mesanine/rngd"
+  - name: openntpd
+    image: "mesanine/openntpd"
   - name: sshd
     image: "mesanine/sshd"
     binds:
