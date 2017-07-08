@@ -16,10 +16,10 @@ onboot:
     command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
   - name: format
     image: "mesanine/format"
-    command: ["/usr/bin/format", "/dev/sda"]
+    command: ["/usr/bin/format"]
   - name: mount
     image: "mesanine/mount"
-    command: ["/usr/bin/mountie", "/var/external:/dev/sda1"]
+    command: ["/usr/bin/mountie"]
   - name: metadata
     image: "mesanine/metadata"
 services:
