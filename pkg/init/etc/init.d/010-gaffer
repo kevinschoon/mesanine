@@ -1,6 +1,7 @@
 #!/bin/sh
 
 GAFFER="/usr/bin/gaffer"
+LOGPATH="/dev/ttyS0"
 
 # set global ulimits TODO move to /etc/limits.conf
 ulimit -n 1048576
@@ -11,7 +12,7 @@ if [ -d /containers ]
 then
 	for f in $(find /containers -mindepth 2 -maxdepth 2 | sort)
   do
-    echo "Mounting $f/rootfs" > /dev/kmsg
+    echo "Mounting $f/rootfs" > $LOGPATH
 		/bin/mount --bind "$f/rootfs" "$f/rootfs"
 		mount -o remount,rw "$f/rootfs"
 		#service start "$(basename $f)"
@@ -20,7 +21,7 @@ fi
 
 
 # Run each onboot container to completion
-$GAFFER --log=/dev/tty0 init --once /containers/onboot
+$GAFFER --log=$LOGPATH init --once /containers/onboot
 
 # Loading all of the service containers into tmpfs
 # utilizes way too much memory on cheaper EC2 instances
@@ -32,8 +33,9 @@ EXT_MOUNT="/var/external"
 SERVICES_PATH="/containers/services"
 
 
+echo "Checking to see if there is an external volume" > $LOGPATH
 [[ -d "$EXT_MOUNT" ]] && {
-  echo "Moving services containers from $SERVICES_PATH to $EXT_MOUNT to save memory" > /dev/kmsg
+  echo "Moving services containers from $SERVICES_PATH to $EXT_MOUNT to save memory" > $LOGPATH
   # Remove anything already on the disk
   rm -rf "$EXT_MOUNT/"
   # Move services rootfs on the device
@@ -41,5 +43,11 @@ SERVICES_PATH="/containers/services"
   SERVICES_PATH="$EXT_MOUNT/services"
 }
 
-$GAFFER --log=/dev/tty0 init "$SERVICES_PATH" &
+echo "Launching Gaffer" > $LOGPATH
+
+$GAFFER --log=$LOGPATH init "$SERVICES_PATH" &
+
+echo "Launching Gaffer UI" > $LOGPATH
+
+$GAFFER --log=$LOGPATH server &
 
