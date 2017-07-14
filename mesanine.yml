@@ -14,12 +14,6 @@ onboot:
   - name: dhcpcd
     image: "mesanine/dhcpcd"
     command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
-  - name: format
-    image: "mesanine/format"
-    command: ["/usr/bin/format"]
-  - name: mount
-    image: "mesanine/mount"
-    command: ["/usr/bin/mountie"]
   - name: metadata
     image: "mesanine/metadata"
 services:
@@ -40,6 +34,25 @@ services:
       - /var/config/ssh:/root/.ssh
       - /etc/resolv.conf:/etc/resolv.conf
       - /:/hostroot
+  - name: etcd
+    image: mesanine/etcd
+    capabilities:
+      - CAP_NET_BIND_SERVICE
+    net: host
+    pid: host
+    mounts:
+     - type: cgroup
+       options: ["rw","nosuid","noexec","nodev","relatime"]
+  - name: zetcd
+    image: mesanine/zetcd
+    command: ["/usr/bin/zetcd", "-zkaddr", "127.0.0.1:2181", "-endpoints", "127.0.0.1:2379", "-logtostderr", "-v", "9"]
+    capabilities:
+      - CAP_NET_BIND_SERVICE
+    net: host
+    pid: host
+    mounts:
+     - type: cgroup
+       options: ["rw","nosuid","noexec","nodev","relatime"]
   - name: master
     image: mesanine/mesos
     command: ["/entrypoint.sh", "mesos-master"]
@@ -60,13 +73,3 @@ services:
     mounts:
      - type: cgroup
        options: ["rw","nosuid","noexec","nodev","relatime"]
-  - name: zookeeper
-    image: mesanine/zookeeper
-    command: ["/entrypoint.sh", "zkServer.sh", "start-foreground"]
-    capabilities:
-      - CAP_NET_BIND_SERVICE
-    net: host
-    pid: host
-    mounts:
-      - type: cgroup
-        options: ["rw", "nosuid", "noexec", "nodev", "relatime"]
