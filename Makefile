@@ -4,6 +4,7 @@ TARGET := $(PWD)/target
 PACKAGES := $(shell find ./pkg -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
 METADATA := $(shell go run ./util/metadata/metadata.go)
 GIT_HASH := $(shell git rev-parse HEAD)
+IMAGE_SIZE := 384M
 AWS_PROFILE := vektor
 AWS_REGION := us-east-1
 AWS_BUCKET := mesanine
@@ -27,7 +28,7 @@ target/mesanine-cmdline target/mesanine-initrd.img target/mesanine-kernel: packa
 	mv -v mesanine-cmdline mesanine-initrd.img mesanine-kernel $(TARGET)/
 
 target/mesanine.raw: packages
-	moby -v build -disable-content-trust=true -output raw mesanine.yml
+	moby -v build -disable-content-trust=true -output raw -size $(IMAGE_SIZE) mesanine.yml
 	mv -v mesanine.raw $(TARGET)/mesanine.raw
 
 target/mesanine.tar: packages
