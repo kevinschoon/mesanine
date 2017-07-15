@@ -5,6 +5,7 @@ init:
   - mesanine/init
   - mesanine/runc
   - mesanine/gaffer
+  - mesanine/mesos-cli
 
 onboot:
   - name: sysctl
