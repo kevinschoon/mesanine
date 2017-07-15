@@ -40,7 +40,7 @@ target/fs: target/mesanine.tar
 
 .PHONY: run
 run: target/mesanine-kernel
-	linuxkit run qemu -mem 4092 -publish "2222:22" -publish "5050:5050" -publish "5051:5051" -publish "9090:9090" -publish "10000:10000" -data '$(METADATA)' -disk=file=./target/mesanine.qcow,size=2G,format=qcow2 -kernel target/mesanine
+	linuxkit run qemu -mem 4092 -publish "2181:2181" -publish "2222:22" -publish "5050:5050" -publish "5051:5051" -publish "9090:9090" -publish "10000:10000" -data '$(METADATA)' -disk=file=./target/mesanine.qcow,size=2G,format=qcow2 -kernel target/mesanine
 
 .PHONY: push-aws
 push-aws: target/mesanine.raw
