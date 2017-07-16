@@ -1,7 +1,7 @@
 #!/bin/sh
 
-GAFFER="/usr/bin/gaffer"
 LOGPATH="/dev/ttyS0"
+GAFFER="/usr/bin/gaffer --debug --log=$LOGPATH"
 
 # set global ulimits TODO move to /etc/limits.conf
 ulimit -n 1048576
@@ -21,7 +21,7 @@ fi
 
 
 # Run each onboot container to completion
-$GAFFER --log=$LOGPATH init --once /containers/onboot
+$GAFFER init --once /containers/onboot
 
 # Loading all of the service containers into tmpfs
 # utilizes way too much memory on cheaper EC2 instances
@@ -31,7 +31,6 @@ $GAFFER --log=$LOGPATH init --once /containers/onboot
 # from tmpfs to here. 
 EXT_MOUNT="/var/external"
 SERVICES_PATH="/containers/services"
-
 
 echo "Checking to see if there is an external volume" > $LOGPATH
 [[ -d "$EXT_MOUNT" ]] && {
@@ -43,11 +42,11 @@ echo "Checking to see if there is an external volume" > $LOGPATH
   SERVICES_PATH="$EXT_MOUNT/services"
 }
 
-echo "Launching Gaffer" > $LOGPATH
+$GAFFER wait /var/config/agent
 
-$GAFFER --log=$LOGPATH init "$SERVICES_PATH" &
+$GAFFER init "$SERVICES_PATH" &
 
 echo "Launching Gaffer UI" > $LOGPATH
 
-$GAFFER --log=$LOGPATH server &
+$GAFFER server &
 
