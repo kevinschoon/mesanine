@@ -14,14 +14,14 @@ onboot:
     image: "mesanine/binfmt"
   - name: dhcpcd
     image: "mesanine/dhcpcd"
-    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1", "-S", "domain_name_servers=127.0.0.1"]
   - name: metadata
     image: "mesanine/metadata"
 services:
-  - name: getty
-    image: "mesanine/getty"
-    env:
-      - INSECURE=true
+  #- name: getty
+  #  image: "mesanine/getty"
+  #  env:
+  #    - INSECURE=true
   # TODO: This still does not seem to work
   # properly. Need Entropy on boot and while 
   # services are running?
@@ -29,6 +29,13 @@ services:
   #  image: "mesanine/rngd"
   - name: openntpd
     image: "mesanine/openntpd"
+  - name: dns
+    image: "mesanine/mesos-dns"
+    command: ["/bin/mesos-dns", "-config", "/etc/config.json"]
+    capabilities:
+      - CAP_NET_BIND_SERVICE
+    binds:
+      - /var/config/dns/config.json:/etc/config.json
   - name: sshd
     image: "mesanine/sshd"
     binds:
