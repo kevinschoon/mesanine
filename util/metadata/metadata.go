@@ -5,32 +5,42 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/user"
+	"path/filepath"
 )
 
 func maybe(err error) {
 	if err != nil {
-		fmt.Println("Error: %s", err.Error())
+		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
 }
 
-func getPubKey() []byte {
-	usr, err := user.Current()
+func walk(path string) map[string]interface{} {
+	data := map[string]interface{}{}
+	files, err := ioutil.ReadDir(path)
 	maybe(err)
-	raw, err := ioutil.ReadFile(fmt.Sprintf("%s/.ssh/id_rsa.pub", usr.HomeDir))
-	maybe(err)
-	return raw
+	for _, file := range files {
+		if file.IsDir() {
+			data[file.Name()] = walk(filepath.Join(path, file.Name()))
+			continue
+		}
+		raw, err := ioutil.ReadFile(filepath.Join(path, file.Name()))
+		maybe(err)
+		data[file.Name()] = map[string]string{
+			"perm":    fmt.Sprintf("%#o", file.Mode()),
+			"content": string(raw),
+		}
+	}
+	return data
 }
 
 func main() {
-	template := map[string]interface{}{
-		"ssh": map[string]map[string]string{
-			"authorized_keys": map[string]string{
-				"perm":    "0644",
-				"content": string(getPubKey()),
-			},
-		},
+	if len(os.Args) != 2 {
+		fmt.Println("specify path")
+		os.Exit(1)
 	}
-	maybe(json.NewEncoder(os.Stdout).Encode(template))
+	_, err := os.Stat("./config")
+	if err == nil {
+		json.NewEncoder(os.Stdout).Encode(walk(os.Args[1]))
+	}
 }
