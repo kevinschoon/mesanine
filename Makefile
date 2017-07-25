@@ -8,6 +8,7 @@ IMAGE_SIZE := 384M
 AWS_PROFILE := vektor
 AWS_REGION := us-east-1
 AWS_BUCKET := mesanine
+CMD_LINE := console=ttyS0 console=tty0 page_poison=1 gaffer=debug
 
 .PHONY: all
 all: packages
@@ -40,7 +41,8 @@ target/fs: target/mesanine.tar
 
 .PHONY: run
 run: target/mesanine-kernel
-	linuxkit run qemu -mem 4092 -publish "2181:2181" -publish "2222:22" -publish "5050:5050" -publish "5051:5051" -publish "10000:10000" -data '$(METADATA)' -disk=file=./target/mesanine.qcow,size=2G,format=qcow2 -kernel target/mesanine
+	#linuxkit run qemu -mem 4092 -publish "2181:2181" -publish "2222:22" -publish "5050:5050" -publish "5051:5051" --publish "8080:8080" -publish "10000:10000" -data '$(METADATA)' -disk=file=./target/mesanine.qcow,size=2G,format=qcow2 -kernel target/mesanine
+	/usr/bin/qemu-system-x86_64 -device virtio-rng-pci -smp 1 -m 4092 -enable-kvm -machine q35,accel=kvm:tcg -drive file=./target/mesanine.qcow,format=qcow2,index=0,media=disk -cdrom target/mesanine-state/data.iso -kernel target/mesanine-kernel -initrd target/mesanine-initrd.img -append '$(CMD_LINE)' -net user,hostfwd=tcp::2181-:2181,hostfwd=tcp::2222-:22,hostfwd=tcp::5050-:5050,hostfwd=tcp::5051-:5051,hostfwd=tcp::8080-:8080,hostfwd=tcp::10000-:10000,guestfwd=tcp:10.0.2.100:8086-tcp:127.0.0.1:8086,guestfwd=tcp:10.0.2.100:9200-tcp:127.0.0.1:9200 -net nic -nographic
 
 .PHONY: push-aws
 push-aws: target/mesanine.raw
