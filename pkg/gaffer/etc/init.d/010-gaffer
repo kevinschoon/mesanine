@@ -1,7 +1,17 @@
 #!/bin/sh
 
-LOGPATH="/dev/ttyS0"
-GAFFER="/usr/bin/gaffer --debug --log=$LOGPATH"
+LOG_DEVICE="/dev/ttyS0"
+LOGDIR="/var/log"
+GAFFER="/usr/bin/gaffer"
+
+# Debug mode is toggleable with kernel parameters
+if [[ "$(grep 'gaffer=debug' /proc/cmdline)" ]] ; then {
+  GAFFER="$GAFFER --debug --device=$LOG_DEVICE"
+} else {
+  # Disable all output
+  GAFFER="$GAFFER --device='' --json --log-dir=$LOGDIR"
+}
+fi
 
 # set global ulimits TODO move to /etc/limits.conf
 ulimit -n 1048576
@@ -15,7 +25,6 @@ then
     echo "Mounting $f/rootfs" > $LOGPATH
 		/bin/mount --bind "$f/rootfs" "$f/rootfs"
 		mount -o remount,rw "$f/rootfs"
-		#service start "$(basename $f)"
 	done
 fi
 
@@ -42,11 +51,15 @@ echo "Checking to see if there is an external volume" > $LOGPATH
   SERVICES_PATH="$EXT_MOUNT/services"
 }
 
+# Wait until we've aquired agent metadata
+# before going forward. # TODO: Need a better
+# way to wait until all underlying subsystems
+# are initialized and we can go forward with 
+# the boot process.
 $GAFFER wait /var/config/agent
 
+# Run the Gaffer init process
 $GAFFER init "$SERVICES_PATH" &
 
-echo "Launching Gaffer UI" > $LOGPATH
-
+# Launch the Gaffer web UI
 $GAFFER server &
-
