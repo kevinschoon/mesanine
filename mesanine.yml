@@ -1,6 +1,6 @@
 kernel: 
   image: "linuxkit/kernel:4.9.x" 
-  cmdline: "console=ttyS0 console=tty0 page_poison=1" 
+  cmdline: "console=ttyS0 console=tty0 page_poison=1 gaffer=debug" 
 init:
   - mesanine/init
   - mesanine/runc
@@ -38,10 +38,6 @@ services:
       - /var/config/dns/config.json:/etc/config.json
   - name: sshd
     image: "mesanine/sshd"
-    binds:
-      - /var/config/ssh:/root/.ssh
-      - /etc/resolv.conf:/etc/resolv.conf
-      - /:/hostroot
   - name: etcd
     image: mesanine/etcd
     capabilities:
@@ -53,7 +49,7 @@ services:
        options: ["rw","nosuid","noexec","nodev","relatime"]
   - name: zetcd
     image: mesanine/zetcd
-    command: ["/usr/bin/zetcd", "-zkaddr", "127.0.0.1:2181", "-endpoints", "127.0.0.1:2379", "-logtostderr", "-v", "9"]
+    command: ["/usr/bin/zetcd", "-zkaddr", "0.0.0.0:2181", "-endpoints", "127.0.0.1:2379", "-logtostderr"]
     capabilities:
       - CAP_NET_BIND_SERVICE
     net: host
@@ -81,3 +77,28 @@ services:
     mounts:
      - type: cgroup
        options: ["rw","nosuid","noexec","nodev","relatime"]
+  - name: marathon
+    image: mesanine/marathon
+    command: ["/opt/marathon/bin/marathon", "--master=zk://127.0.0.1:2181/mesos", "--hostname=localhost"]
+    capabilities:
+      - CAP_NET_BIND_SERVICE
+    net: host
+    pid: host
+    env:
+      - LIBPROCESS_IP=127.0.0.1
+      - MESOS_NATIVE_JAVA_LIBRARY=/usr/lib/libmesos-1.3.0.so
+  - name: filebeat
+    image: mesanine/filebeat
+    command: ["/opt/filebeat/filebeat", "-e"]
+    net: host
+    pid: host
+    env:
+      - ES_HOSTS=10.0.2.100:9200
+    binds:
+      - /var/log:/var/log
+  - name: telegraf
+    image: mesanine/telegraf
+    command: ["/usr/bin/telegraf", "--config=/etc/telegraf/telegraf.conf"]
+    binds:
+      - /var/config/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+
