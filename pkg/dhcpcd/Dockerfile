@@ -1,1 +1,5 @@
-FROM linuxkit/dhcpcd:4b7b8bb024cebb1bbb9c8026d44d7cbc8e202c41
+FROM linuxkit/dhcpcd:17423c1ccced74e3c005fd80486e8177841fe02b
+
+COPY entrypoint.sh /
+
+ENTRYPOINT ["/entrypoint.sh"]
