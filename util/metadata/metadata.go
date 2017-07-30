@@ -1,12 +1,16 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/coreos/ignition/config/v2_1/types"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 )
+
+const configPath = "/var/mesanine"
 
 func maybe(err error) {
 	if err != nil {
@@ -15,32 +19,100 @@ func maybe(err error) {
 	}
 }
 
-func walk(path string) map[string]interface{} {
-	data := map[string]interface{}{}
-	files, err := ioutil.ReadDir(path)
-	maybe(err)
-	for _, file := range files {
-		if file.IsDir() {
-			data[file.Name()] = walk(filepath.Join(path, file.Name()))
-			continue
+func walk(path string, walkFn func(*os.File) error) error {
+	infos, err := ioutil.ReadDir(path)
+	if err != nil {
+		return err
+	}
+	for _, info := range infos {
+		if info.IsDir() {
+			err = walk(filepath.Join(path, info.Name()), walkFn)
+			if err != nil {
+				return err
+			}
 		}
-		raw, err := ioutil.ReadFile(filepath.Join(path, file.Name()))
-		maybe(err)
-		data[file.Name()] = map[string]string{
-			"perm":    fmt.Sprintf("%#o", file.Mode()),
-			"content": string(raw),
+		fd, err := os.Open(filepath.Join(path, info.Name()))
+		if err != nil {
+			return err
+		}
+		defer fd.Close()
+		err = walkFn(fd)
+		if err != nil {
+			return err
 		}
 	}
-	return data
+	return nil
+}
+
+func newWalkFn(storage *types.Storage) func(*os.File) error {
+	return func(fd *os.File) error {
+		info, err := fd.Stat()
+		if err != nil {
+			return err
+		}
+		switch {
+		case info.Mode().IsDir():
+			dir := types.Directory{
+				Node: types.Node{
+					Filesystem: "root",
+					Path:       fmt.Sprintf("%s/%s", configPath, fd.Name()),
+				},
+				DirectoryEmbedded1: types.DirectoryEmbedded1{Mode: 0755},
+			}
+			storage.Directories = append(storage.Directories, dir)
+		case info.Mode().IsRegular():
+			raw, err := ioutil.ReadAll(fd)
+			if err != nil {
+				return err
+			}
+			content := base64.StdEncoding.EncodeToString(raw)
+			file := types.File{
+				Node: types.Node{
+					Filesystem: "root",
+					Path:       fmt.Sprintf("%s/%s", configPath, fd.Name()),
+				},
+				FileEmbedded1: types.FileEmbedded1{
+					Mode: int(info.Mode()),
+					Contents: types.FileContents{
+						Source: fmt.Sprintf("data:text/plain;charset=utf-8;base64,%s", content),
+					},
+				},
+			}
+			storage.Files = append(storage.Files, file)
+		}
+		return nil
+	}
 }
 
 func main() {
 	if len(os.Args) != 2 {
-		fmt.Println("specify path")
+		fmt.Println("usage: metadata.go PATH TARGET")
 		os.Exit(1)
 	}
-	_, err := os.Stat("./config")
-	if err == nil {
-		json.NewEncoder(os.Stdout).Encode(walk(os.Args[1]))
+	configPath := os.Args[1]
+	storage := &types.Storage{
+		Files:       []types.File{},
+		Links:       []types.Link{},
+		Directories: []types.Directory{},
 	}
+	maybe(os.Chdir(configPath))
+	maybe(walk(".", newWalkFn(storage)))
+	config := &types.Config{
+		Ignition: types.Ignition{Version: "2.1.0"},
+		Storage:  *storage,
+	}
+	maybe(json.NewEncoder(os.Stdout).Encode(config))
+	/*
+		targetFile := os.Args[2]
+		_, err := os.Stat(configPath)
+		maybe(err)
+		config := walk(configPath)
+		json.NewEncoder(os.Stdout).Encode(config)
+		raw, err := json.Marshal(config)
+		maybe(err)
+		out, err := os.OpenFile(targetFile, os.O_CREATE|os.O_WRONLY, 0644)
+		maybe(err)
+		maybe(iso9660wrap.WriteBuffer(out, raw, "config"))
+		out.Close()
+	*/
 }
