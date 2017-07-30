@@ -1,11 +1,9 @@
 kernel: 
-  image: "linuxkit/kernel:4.9.x" 
-  cmdline: "console=ttyS0 console=tty0 page_poison=1 gaffer=debug" 
+  image: "linuxkit/kernel:4.9.40-91714b66fb6f39045bb5c79ecacb23eab1aa4bc3-dirty" 
 init:
   - mesanine/init
   - mesanine/runc
   - mesanine/gaffer
-  - mesanine/mesos-cli
 
 onboot:
   - name: sysctl
@@ -14,91 +12,16 @@ onboot:
     image: "mesanine/binfmt"
   - name: dhcpcd
     image: "mesanine/dhcpcd"
-    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1", "-S", "domain_name_servers=127.0.0.1"]
-  - name: metadata
-    image: "mesanine/metadata"
+  - name: ignition
+    image: "mesanine/ignition"
 services:
-  #- name: getty
-  #  image: "mesanine/getty"
-  #  env:
-  #    - INSECURE=true
-  # TODO: This still does not seem to work
-  # properly. Need Entropy on boot and while 
-  # services are running?
-  #- name: rngd 
-  #  image: "mesanine/rngd"
-  - name: openntpd
-    image: "mesanine/openntpd"
-  - name: dns
-    image: "mesanine/mesos-dns"
-    command: ["/bin/mesos-dns", "-config", "/etc/config.json"]
-    capabilities:
-      - CAP_NET_BIND_SERVICE
-    binds:
-      - /var/config/dns/config.json:/etc/config.json
   - name: sshd
     image: "mesanine/sshd"
   - name: etcd
-    image: mesanine/etcd
-    capabilities:
-      - CAP_NET_BIND_SERVICE
-    net: host
-    pid: host
-    mounts:
-     - type: cgroup
-       options: ["rw","nosuid","noexec","nodev","relatime"]
+    image: "mesanine/etcd"
   - name: zetcd
-    image: mesanine/zetcd
-    command: ["/usr/bin/zetcd", "-zkaddr", "0.0.0.0:2181", "-endpoints", "127.0.0.1:2379", "-logtostderr"]
-    capabilities:
-      - CAP_NET_BIND_SERVICE
-    net: host
-    pid: host
-    mounts:
-     - type: cgroup
-       options: ["rw","nosuid","noexec","nodev","relatime"]
-  - name: master
-    image: mesanine/mesos
-    command: ["/entrypoint.sh", "mesos-master"]
-    capabilities:
-      - CAP_NET_BIND_SERVICE
-    net: host
-    pid: host
-    mounts:
-     - type: cgroup
-       options: ["rw","nosuid","noexec","nodev","relatime"]
-  - name: agent
-    image: mesanine/mesos
-    command: ["/entrypoint.sh", "mesos-agent"]
-    capabilities:
-      - all
-    net: host
-    pid: host
-    mounts:
-     - type: cgroup
-       options: ["rw","nosuid","noexec","nodev","relatime"]
-  - name: marathon
-    image: mesanine/marathon
-    command: ["/opt/marathon/bin/marathon", "--master=zk://127.0.0.1:2181/mesos", "--hostname=localhost"]
-    capabilities:
-      - CAP_NET_BIND_SERVICE
-    net: host
-    pid: host
-    env:
-      - LIBPROCESS_IP=127.0.0.1
-      - MESOS_NATIVE_JAVA_LIBRARY=/usr/lib/libmesos-1.3.0.so
-  - name: filebeat
-    image: mesanine/filebeat
-    command: ["/opt/filebeat/filebeat", "-e"]
-    net: host
-    pid: host
-    env:
-      - ES_HOSTS=10.0.2.100:9200
-    binds:
-      - /var/log:/var/log
-  - name: telegraf
-    image: mesanine/telegraf
-    command: ["/usr/bin/telegraf", "--config=/etc/telegraf/telegraf.conf"]
-    binds:
-      - /var/config/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
-
+    image: "mesanine/zetcd"
+  - name: mesos-master
+    image: "mesanine/mesos-master"
+  - name: mesos-agent
+    image: "mesanine/mesos-agent"

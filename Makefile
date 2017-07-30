@@ -9,7 +9,7 @@ IMAGE_SIZE := 384M
 AWS_PROFILE := vektor
 AWS_REGION := us-east-1
 AWS_BUCKET := mesanine
-CMD_LINE := console=ttyS0 console=tty0 page_poison=1 
+CMD_LINE := console=ttyS0 console=tty0 page_poison=1 gaffer=debug
 
 
 .PHONY: all clean run run-now packages push-aws
