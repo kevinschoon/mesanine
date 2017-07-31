@@ -1,5 +1,6 @@
 kernel: 
   image: "linuxkit/kernel:4.9.40-91714b66fb6f39045bb5c79ecacb23eab1aa4bc3-dirty" 
+  cmdline: "console=tty0 console=ttyS0 gaffer=debug"
 init:
   - mesanine/init
   - mesanine/runc
