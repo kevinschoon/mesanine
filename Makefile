@@ -2,7 +2,7 @@ PWD := $(shell pwd)
 MOBY := $(shell which moby) 
 LINUXKIT := $(shell which linuxkit)
 TARGET := ./target
-PACKAGES := $(shell find ./pkg -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
+PACKAGES := $(shell find ./pkg -mindepth 1 -maxdepth 1 -type d -printf "%f\n" |sort)
 METADATA := $(shell go run ./util/metadata/metadata.go ./config)
 GIT_HASH := $(shell git rev-parse HEAD)
 IMAGE_SIZE := 384M
@@ -36,17 +36,15 @@ $(TARGET)/config.ign:
 	go run util/metadata/metadata.go ./config >$(TARGET)/config.ign
 
 $(TARGET)/mesanine.raw: packages
-	$(MOBY) -v build -disable-content-trust=true -output raw -size $(IMAGE_SIZE) mesanine.yml
+	$(MOBY) build -disable-content-trust=true -output raw -size $(IMAGE_SIZE) mesanine.yml
 	mv -v mesanine.raw $(TARGET)/mesanine.raw
 
 $(TARGET)/mesanine.tar: packages
-	$(MOBY) -v build -disable-content-trust=true -output tar -o $(TARGET)/mesanine.tar mesanine.yml
+	$(MOBY) build -disable-content-trust=true -output tar -o $(TARGET)/mesanine.tar mesanine.yml
 
 $(TARGET)/fs: $(TARGET)/mesanine.tar
 	mkdir $(TARGET)/fs || true
-	tar -C $(TARGET)/fs -xvf $(TARGET)/mesanine.tar || true # Cannot handle hardlinks
-
-#	@echo $(LINUXKIT) metadata create $(TARGET)/metadata.iso '$(shell go run util/metadata/metadata.go ./config)'
+	tar -C $(TARGET)/fs -xf $(TARGET)/mesanine.tar
 
 run: $(TARGET)/mesanine-cmdline $(TARGET)/mesanine.qcow2 $(TARGET)/config.ign run-cmd
 

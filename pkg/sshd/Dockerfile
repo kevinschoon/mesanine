@@ -1,26 +1,18 @@
-FROM quay.io/vektorcloud/base:3.6 AS mirror
+FROM mesanine/base AS base
 
-RUN mkdir -p /out/etc/apk && cp -r /etc/apk/* /out/etc/apk/
-RUN apk add --no-cache --initdb -p /out \
-    alpine-baselayout \
-    busybox \
-    curl \
-    ca-certificates \
-    htop \
-    file \
-    jq \
-    musl \
-    openssh-server \
-    tini \
-    util-linux \
-    vim \
-    && true
-RUN rm -rf /out/etc/apk /out/lib/apk /out/var/cache
+RUN add-pkgs \
+  curl \
+  htop \
+  file \
+  jq \
+  openssh-server \
+  tini \
+  vim 
 
 FROM scratch
 ENTRYPOINT []
 WORKDIR /
-COPY --from=mirror /out/ /
+COPY --from=base /base/ /
 COPY etc/ /etc/
 COPY usr/ /usr/
 RUN mkdir -p /etc/ssh /root/.ssh && chmod 0700 /root/.ssh

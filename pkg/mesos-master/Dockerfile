@@ -1,4 +1,20 @@
-FROM mesanine/mesos
+FROM mesanine/base AS base
+
+RUN add-pkgs \
+  coreutils \
+  curl \
+  fts \
+  libstdc++ \
+  openssl \
+  subversion \
+  tar 
+
+FROM quay.io/vektorcloud/mesos AS mesos
+
+FROM scratch
+
+COPY --from=base /base/ /
+COPY --from=mesos /usr/local /usr/local
 
 COPY discover-ip /sbin/
 

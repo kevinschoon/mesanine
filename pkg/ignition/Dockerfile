@@ -8,9 +8,19 @@ RUN apk add --no-cache bash musl-dev util-linux-dev \
   && glide install \
   && ./build 
 
-FROM quay.io/vektorcloud/base:3.6
+FROM mesanine/base AS base
 
-RUN apk add --no-cache musl-dev util-linux-dev
+RUN add-pkgs \
+  e2fsprogs \
+  e2fsprogs-extra \
+  btrfs-progs \
+  musl-dev \
+  sfdisk \
+  util-linux-dev 
+
+FROM scratch
+
+COPY --from=base /base /
 
 COPY --from=source /go/src/github.com/coreos/ignition/bin/amd64/ignition /usr/bin/
 
