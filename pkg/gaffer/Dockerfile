@@ -1,8 +1,8 @@
-FROM quay.io/vektorlab/gaffer AS gaffer
+FROM mesanine/gaffer AS gaffer
 FROM scratch
 
 WORKDIR /
 ENTRYPOINT []
 
-COPY --from=gaffer /bin/gaffer /usr/bin/
+COPY --from=gaffer /usr/bin/gaffer /usr/bin/
 COPY etc/ /etc/

@@ -1,54 +1,23 @@
 #!/bin/sh
 
-KMSG="/dev/kmsg"
-LOG_DEVICE="/dev/ttyS0"
-LOGDIR="/var/log"
 GAFFER="/usr/bin/gaffer"
+LOG_DEVICE="/dev/ttyS0"
 
 # Debug mode is toggleable with kernel parameters
 if [[ "$(grep 'gaffer=debug' /proc/cmdline)" ]] ; then {
   GAFFER="$GAFFER --debug --device=$LOG_DEVICE"
 } else {
-  # Disable all output
-  GAFFER="$GAFFER --json --log-dir=$LOGDIR"
+  GAFFER="$GAFFER --device=$LOG_DEVICE"
 }
-fi
-
-# Remount onboot containers as rw
-if [ -d /containers ]
-then
-	for f in $(find /containers -mindepth 2 -maxdepth 2 | sort)
-  do
-    echo "Mounting $f" > $KMSG
-		/bin/mount --bind "$f" "$f"
-		mount -o remount,rw "$f"
-	done
 fi
 
 # Run each onboot container to completion
-$GAFFER --hard init --once /containers/onboot
+$GAFFER --hard=true init --once /containers/onboot
 
-# Loading all of the service containers into tmpfs
-# utilizes way too much memory on cheaper EC2 instances
-# like T2 or M3. We want to save as much memory as possible
-# for running our applications. If there is a disk mounted 
-# below /var/external we will move all the service containers
-# from tmpfs to here. 
-EXT_MOUNT="/var/external"
-SERVICES_PATH="/containers/services"
-
-echo "Checking to see if there is an external volume" > $KMSG
-[[ -d "$EXT_MOUNT" ]] && {
-  echo "Moving services containers from $SERVICES_PATH to $EXT_MOUNT to save memory" > $KMSG
-  # Remove anything already on the disk
-  rm -rf "$EXT_MOUNT/"
-  # Move services rootfs on the device
-  mv -v "$SERVICES_PATH" "$EXT_MOUNT"
-  SERVICES_PATH="$EXT_MOUNT/services"
-}
 # Make Mesos run dir
 # TODO: move elsewhere
 mkdir -p /var/run/mesos
+
 # Wait until we've aquired agent metadata
 # before going forward. # TODO: Need a better
 # way to wait until all underlying subsystems
@@ -57,7 +26,7 @@ mkdir -p /var/run/mesos
 #$GAFFER wait /var/mesanine/mesos-agent
 
 # Run the Gaffer init process
-$GAFFER --hard=true init "$SERVICES_PATH" &
+$GAFFER --hard=true init /containers/services &
 
 # Launch the Gaffer web UI
-$GAFFER server &
+#$GAFFER server &
