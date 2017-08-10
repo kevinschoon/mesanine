@@ -7,8 +7,6 @@ CLEANUP="
 /base/lib/apk 
 /base/etc/apk 
 /base/dev
-/base/usr/share/terminfo
-/base/etc/terminfo
 "
 
 for p in $CLEANUP; do 

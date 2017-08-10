@@ -4,7 +4,12 @@
 mount -n -t proc proc /proc -o nodev,nosuid,noexec,relatime
 
 # remount rootfs as readonly
-mount -o remount,ro /
+# TODO: Gaffer modifies config.json
+# at run time to inject environment 
+# variables from user-data. Easier
+# to leave the FS as writable 
+# for now.
+#mount -o remount,ro /
 
 # mount tmpfs for /tmp and /run
 mount -n -t tmpfs tmpfs /run -o nodev,nosuid,noexec,relatime,size=10%,mode=755
@@ -105,7 +110,7 @@ fi
 if [ $(hostname) = "(none)" -a -f /sys/class/net/eth0/address ]
 then
 	mac=$(cat /sys/class/net/eth0/address)
-	hostname linuxkit-$(echo $mac | sed 's/://g')
+	hostname mesanine-$(echo $mac | sed 's/://g')
 fi
 
 # set system clock from hwclock
