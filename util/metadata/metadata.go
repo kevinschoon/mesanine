@@ -102,17 +102,4 @@ func main() {
 		Storage:  *storage,
 	}
 	maybe(json.NewEncoder(os.Stdout).Encode(config))
-	/*
-		targetFile := os.Args[2]
-		_, err := os.Stat(configPath)
-		maybe(err)
-		config := walk(configPath)
-		json.NewEncoder(os.Stdout).Encode(config)
-		raw, err := json.Marshal(config)
-		maybe(err)
-		out, err := os.OpenFile(targetFile, os.O_CREATE|os.O_WRONLY, 0644)
-		maybe(err)
-		maybe(iso9660wrap.WriteBuffer(out, raw, "config"))
-		out.Close()
-	*/
 }

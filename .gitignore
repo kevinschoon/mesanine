@@ -1,3 +1,5 @@
 *.swp
 target/*
-config/*
+config/files/*
+.terraform
+terraform.tfstate*

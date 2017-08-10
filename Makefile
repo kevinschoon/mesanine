@@ -9,10 +9,9 @@ IMAGE_SIZE := 384M
 AWS_PROFILE := vektor
 AWS_REGION := us-east-1
 AWS_BUCKET := mesanine
-CMD_LINE := console=tty0 console=ttyS0 gaffer=debug
+OEM := qemu
 
-
-.PHONY: all clean run run-now packages push-aws
+.PHONY: all clean docker ignition run run-now packages push-aws
 
 all: packages
 
@@ -25,33 +24,65 @@ packages:
 clean:
 	rm -rf $(TARGET)/**
 
-$(TARGET)/mesanine-cmdline $(TARGET)/mesanine-initrd.img $(TARGET)/mesanine-kernel: packages
-	$(MOBY) build -disable-content-trust=true -output kernel+initrd mesanine.yml
-	mv -v mesanine-cmdline mesanine-initrd.img mesanine-kernel $(TARGET)/
+ignition:
+	terraform apply
 
-$(TARGET)/mesanine.qcow2:
-	qemu-img create -o size=1024M -f qcow2 $(TARGET)/mesanine.qcow2
+$(TARGET)/oem:
+	echo -n ${OEM} > $(TARGET)/oem
 
-$(TARGET)/config.ign:
-	go run util/metadata/metadata.go ./config >$(TARGET)/config.ign
+master: $(TARGET)/oem packages
+ifeq (${OEM},qemu)
+	qemu-img create -o size=1024M -f qcow2 $(TARGET)/master.qcow2
+	$(MOBY) build -output kernel+initrd -dir $(TARGET) master.yml
+endif
+ifeq (${OEM},ec2)
+	$(MOBY) build -output raw -size $(IMAGE_SIZE) -dir $(TARGET) master.yml
+endif
 
-$(TARGET)/mesanine.raw: packages
-	$(MOBY) build -disable-content-trust=true -output raw -size $(IMAGE_SIZE) mesanine.yml
-	mv -v mesanine.raw $(TARGET)/mesanine.raw
+agent: $(TARGET)/oem packages
+ifeq (${OEM},qemu)
+	qemu-img create -o size=1024M -f qcow2 $(TARGET)/agent.qcow2
+	$(MOBY) build -output kernel+initrd -dir $(TARGET) agent.yml
+endif
+ifeq (${OEM},ec2)
+	$(MOBY) build -output raw -size $(IMAGE_SIZE) -dir $(TARGET) agent.yml
+endif
 
-$(TARGET)/mesanine.tar: packages
-	$(MOBY) build -disable-content-trust=true -output tar -o $(TARGET)/mesanine.tar mesanine.yml
+$(TARGET)/master.tar: $(TARGET)/oem packages
+	$(MOBY) build -output tar -o $(TARGET)/master.tar master.yml
 
-$(TARGET)/fs: $(TARGET)/mesanine.tar
-	mkdir $(TARGET)/fs || true
-	tar -C $(TARGET)/fs -xf $(TARGET)/mesanine.tar
+$(TARGET)/agent.tar: $(TARGET)/oem packages
+	$(MOBY) build -output tar -o $(TARGET)/agent.tar agent.yml
 
-run: $(TARGET)/mesanine-cmdline $(TARGET)/mesanine.qcow2 $(TARGET)/config.ign run-cmd
+$(TARGET)/master.raw: $(TARGET)/oem packages
+	$(MOBY) build -output raw -o $(TARGET)/master.raw master.yml
 
-run-cmd:
-	/usr/bin/qemu-system-x86_64 -device virtio-rng-pci -smp 1 -m 4092 -enable-kvm -machine q35,accel=kvm:tcg -drive file=$(TARGET)/mesanine.qcow2,format=qcow2,index=0,media=disk -fw_cfg  name=opt/com.coreos/config,file=$(TARGET)/config.ign -kernel $(TARGET)/mesanine-kernel -initrd $(TARGET)/mesanine-initrd.img -append '$(CMD_LINE)' -net user,hostfwd=tcp::2181-:2181,hostfwd=tcp::2222-:22,hostfwd=tcp::5050-:5050,hostfwd=tcp::5051-:5051,hostfwd=tcp::8080-:8080,hostfwd=tcp::9090-:9090,hostfwd=tcp::10000-:10000 -net nic -nographic
+$(TARGET)/agent.raw: $(TARGET)/oem package
+	$(MOBY) build -output raw -o $(TARGET)/agent.raw agent.yml
 
-#,guestfwd=tcp:10.0.2.100:8086-tcp:127.0.0.1:8086
+$(TARGET)/master-fs: $(TARGET)/master.tar
+	mkdir $(TARGET)/master-fs 2>/dev/null || true
+	tar -C $(TARGET)/master-fs -xf $(TARGET)/master.tar
 
-push-aws: $(TARGET)/mesanine.raw
-	AWS_PROFILE=$(AWS_PROFILE) AWS_REGION=$(AWS_REGION) linuxkit -v push aws -bucket $(AWS_BUCKET) -img-name mesanine-$(GIT_HASH) -timeout 1200 $(TARGET)/mesanine.raw
+$(TARGET)/agent-fs: $(TARGET)/agent.tar
+	mkdir $(TARGET)/agent-fs 2>/dev/null || true
+	tar -C $(TARGET)/agent-fs -xf $(TARGET)/agent.tar
+
+docker: $(TARGET)/master-fs $(TARGET)/agent-fs
+	echo -e "FROM scratch\nCOPY master-fs/ /" > $(TARGET)/Dockerfile
+	docker build -t mesanine/mesanine-master $(TARGET)
+	echo -e "FROM scratch\nCOPY agent-fs/ /" > $(TARGET)/Dockerfile
+	docker build -t mesanine/mesanine-agent $(TARGET)
+
+run-master: master ignition run-master-cmd
+
+run-agent: agent ignition run-agent-cmd
+
+run-master-cmd:
+	$(LINUXKIT) run qemu -mem 4092 -publish "2181:2181" -publish "2222:22" -publish "5050:5050" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/master.ign" -disk=file=$(TARGET)/master.qcow,size=2G,format=qcow2 -kernel $(TARGET)/master
+
+run-agent-cmd:
+	$(LINUXKIT) run qemu -mem 4092 -publish "2222:22" -publish "5051:5051" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/agent.ign" -disk=file=$(TARGET)/agent.qcow,size=2G,format=qcow2 -kernel $(TARGET)/agent
+
+push-aws-agent: $(TARGET)/agent.raw
+	AWS_PROFILE=$(AWS_PROFILE) AWS_REGION=$(AWS_REGION) linuxkit -v push aws -bucket $(AWS_BUCKET) -img-name mesanine-agent-$(GIT_HASH) -timeout 1200 $(TARGET)/agent.raw
