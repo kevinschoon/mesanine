@@ -42,11 +42,24 @@ data "ignition_file" "authorized_keys" {
   }
 }
 
+data "ignition_file" "docker_lib" {
+  filesystem = "root"
+  path       = "/var/lib/docker/_placeholder"
+  mode       = 0600
+
+  content {
+    content = "1"
+  }
+}
+
 data "ignition_config" "mesanine-master" {
   files = [
     "${data.ignition_file.mesos_master_envs_json.id}",
     "${data.ignition_file.zetcd_envs_json.id}",
     "${data.ignition_file.authorized_keys.id}",
+    "${data.ignition_file.mesos_agent_envs_json.id}",
+    "${data.ignition_file.authorized_keys.id}",
+    "${data.ignition_file.docker_lib.id}",
   ]
 }
 
@@ -54,6 +67,7 @@ data "ignition_config" "mesanine-agent" {
   files = [
     "${data.ignition_file.mesos_agent_envs_json.id}",
     "${data.ignition_file.authorized_keys.id}",
+    "${data.ignition_file.docker_lib.id}",
   ]
 }
 

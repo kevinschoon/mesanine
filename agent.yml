@@ -16,9 +16,8 @@ services:
     image: mesanine/sshd
   - name: mesos-agent
     image: mesanine/mesos-agent
-
+  - name: docker
+    image: mesanine/docker
 files:
   - path: /oem
     source: ./target/oem
-  - path: /var/run/mesos
-    directory: true

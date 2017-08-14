@@ -14,11 +14,11 @@ variable "mesos_master_envs" {
 variable "mesos_agent_envs" {
   default = {
     "MESOS_MASTER"          = "zk://localhost:2181/mesos"
-    "MESOS_CONTAINERIZERS"  = "mesos"
-    "MESOS_LAUNCHER"        = "posix"
+    "MESOS_CONTAINERIZERS"  = "mesos,docker"
+    "MESOS_LAUNCHER"        = "linux"
     "MESOS_LOGGING_LEVEL"   = "WARNING"
-    "MESOS_ISOLATION"       = "posix/cpu,posix/mem"
-    "MESOS_IMAGE_PROVIDERS" = "APPC"
+    "MESOS_ISOLATION"       = "cgroups/cpu,cgroups/mem,cgroups/pids,namespaces/pid,filesystem/shared,filesystem/linux,volume/sandbox_path,docker/runtime"
+    "MESOS_IMAGE_PROVIDERS" = "APPC,DOCKER"
   }
 }
 
