@@ -24,6 +24,8 @@ services:
     image: mesanine/mesos-agent
   - name: docker
     image: mesanine/docker
+  - name: marathon
+    image: mesanine/marathon
 
 
 files:

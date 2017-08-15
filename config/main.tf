@@ -23,6 +23,15 @@ data "ignition_file" "mesos_agent_envs_json" {
   }
 }
 
+data "ignition_file" "marathon_envs_json" {
+  filesystem = "root"
+  path       = "${var.config_path}/marathon/envs.json"
+
+  content {
+    content = "${jsonencode(var.marathon_envs)}"
+  }
+}
+
 data "ignition_file" "zetcd_envs_json" {
   filesystem = "root"
   path       = "${var.config_path}/zetcd/envs.json"
@@ -55,6 +64,7 @@ data "ignition_file" "docker_lib" {
 data "ignition_config" "mesanine-master" {
   files = [
     "${data.ignition_file.mesos_master_envs_json.id}",
+    "${data.ignition_file.marathon_envs_json.id}",
     "${data.ignition_file.zetcd_envs_json.id}",
     "${data.ignition_file.authorized_keys.id}",
     "${data.ignition_file.mesos_agent_envs_json.id}",

@@ -16,9 +16,16 @@ variable "mesos_agent_envs" {
     "MESOS_MASTER"          = "zk://localhost:2181/mesos"
     "MESOS_CONTAINERIZERS"  = "mesos,docker"
     "MESOS_LAUNCHER"        = "linux"
-    "MESOS_LOGGING_LEVEL"   = "WARNING"
+    "MESOS_LOGGING_LEVEL"   = "INFO"
     "MESOS_ISOLATION"       = "cgroups/cpu,cgroups/mem,cgroups/pids,namespaces/pid,filesystem/shared,filesystem/linux,volume/sandbox_path,docker/runtime"
     "MESOS_IMAGE_PROVIDERS" = "APPC,DOCKER"
+  }
+}
+
+variable "marathon_envs" {
+  default = {
+    "MARATHON_ZK"     = "zk://127.0.0.1:2181/marathon"
+    "MARATHON_MASTER" = "zk://127.0.0.1:2181/mesos"
   }
 }
 

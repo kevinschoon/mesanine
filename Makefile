@@ -79,7 +79,7 @@ run-master: master ignition run-master-cmd
 run-agent: agent ignition run-agent-cmd
 
 run-master-cmd:
-	$(LINUXKIT) run qemu -mem 4092 -publish "2181:2181" -publish "2222:22" -publish "2379:2379" -publish "5050:5050" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/master.ign" -disk=file=$(TARGET)/master.qcow,size=2G,format=qcow2 -kernel $(TARGET)/master
+	$(LINUXKIT) run qemu -mem 8000 -publish "2181:2181" -publish "2222:22" -publish "2379:2379" -publish "5050:5050" -publish "8080:8080" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/master.ign" -disk=file=$(TARGET)/master.qcow,size=2G,format=qcow2 -kernel $(TARGET)/master
 
 run-agent-cmd:
 	$(LINUXKIT) run qemu -mem 4092 -publish "2222:22" -publish "5051:5051" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/agent.ign" -disk=file=$(TARGET)/agent.qcow,size=2G,format=qcow2 -kernel $(TARGET)/agent
