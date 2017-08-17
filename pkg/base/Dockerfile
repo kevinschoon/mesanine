@@ -5,6 +5,7 @@ RUN mkdir -p /base/etc/apk \
   && apk add --no-cache --initdb -p /base \
   alpine-baselayout \
   busybox \
+  eudev \
   ca-certificates \
   dhcpcd \
   musl \
@@ -14,6 +15,10 @@ RUN mkdir -p /base/etc/apk \
   musl-dev \
   sfdisk \
   util-linux-dev  \
+  linux-headers \
+  libseccomp \
+  libseccomp-dev \
   && rm -rv /base/dev/*
 
 COPY add-pkgs.sh /usr/bin/add-pkgs
+COPY etc/ /base/etc/

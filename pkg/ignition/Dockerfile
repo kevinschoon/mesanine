@@ -1,34 +1,17 @@
 FROM quay.io/vektorcloud/go:1.8 AS source
 
-RUN apk add --no-cache bash musl-dev util-linux-dev \ 
-  && mkdir -p /go/src/github.com/coreos \
-  && cd /go/src/github.com/coreos \
-  && git clone https://github.com/kevinschoon/ignition \
-  && cd ignition \
-  && git checkout linuxkit \
+RUN apk add --no-cache bash musl-dev util-linux-dev
+
+COPY src/ /go/src/github.com/coreos/ignition/
+
+RUN cd /go/src/github.com/coreos/ignition \
   && glide install \
-  && ./build 
-
-FROM mesanine/base AS base
-
-RUN add-pkgs \
-  e2fsprogs \
-  e2fsprogs-extra \
-  btrfs-progs \
-  musl-dev \
-  sfdisk \
-  util-linux-dev 
+  && sed -i -e 's/VERSION=.*/VERSION=mesanine/' ./build \
+  && PLATFORM=linuxkit ./build
 
 FROM scratch
 
-COPY --from=base /base /
+ENTRYPOINT []
 
 COPY --from=source /go/src/github.com/coreos/ignition/bin/amd64/ignition /usr/bin/
-
-COPY entrypoint.sh /
-
-LABEL org.mobyproject.config='{"pid": "host", "net": "host", "binds": ["/:/hostroot", "/lib/modules:/lib/modules", "/sys:/sys"], "capabilities": ["all"]}'
-
-ENTRYPOINT ["/entrypoint.sh"]
-
-
+COPY etc/ /etc/

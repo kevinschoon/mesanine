@@ -61,6 +61,16 @@ data "ignition_file" "docker_lib" {
   }
 }
 
+data "ignition_filesystem" "mnt" {
+  name = "mnt"
+
+  mount {
+    device = "/dev/sda"
+    format = "ext4"
+    create = true
+  }
+}
+
 data "ignition_config" "mesanine-master" {
   files = [
     "${data.ignition_file.mesos_master_envs_json.id}",
@@ -70,6 +80,10 @@ data "ignition_config" "mesanine-master" {
     "${data.ignition_file.mesos_agent_envs_json.id}",
     "${data.ignition_file.authorized_keys.id}",
     "${data.ignition_file.docker_lib.id}",
+  ]
+
+  filesystems = [
+    "${data.ignition_filesystem.mnt.id}",
   ]
 }
 
