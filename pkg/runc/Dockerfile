@@ -1,1 +1,5 @@
-FROM linuxkit/runc:4a35484aa6f90a1f06cdf1fb36f7056926a084b9
+FROM quay.io/vektorcloud/runc AS runc
+
+FROM scratch
+
+COPY --from=runc /usr/bin/runc /usr/bin/
