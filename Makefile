@@ -1,6 +1,6 @@
-MOBY := $(shell which moby) 
-LINUXKIT := $(shell which linuxkit)
 TARGET := ./target
+MOBY := ./tools/linuxkit/bin/moby
+LINUXKIT := ./tools/linuxkit/bin/linuxkit
 PACKAGES := $(shell find ./pkg -mindepth 1 -maxdepth 1 -type d -printf "%f\n" |sort)
 METADATA := $(shell go run ./util/metadata/metadata.go ./config)
 GIT_HASH := $(shell git rev-parse HEAD)
