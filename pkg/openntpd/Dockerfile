@@ -1,1 +1,0 @@
-FROM linuxkit/openntpd:19370f5d9bec84eb91073b7196b732f1301d9c90

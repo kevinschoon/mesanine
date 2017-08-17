@@ -1,1 +1,0 @@
-FROM linuxkit/sysctl:154913b72c6f1f33eb408609fca9963628e8c051

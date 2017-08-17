@@ -1,1 +1,0 @@
-FROM linuxkit/binfmt:472eeba777d056c5f98fe074aa0f581c67ccc7ff
