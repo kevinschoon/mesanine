@@ -1,4 +1,3 @@
-PWD := $(shell pwd)
 MOBY := $(shell which moby) 
 LINUXKIT := $(shell which linuxkit)
 TARGET := ./target
@@ -55,10 +54,10 @@ $(TARGET)/agent.tar: $(TARGET)/oem packages
 	$(MOBY) build -output tar -o $(TARGET)/agent.tar agent.yml
 
 $(TARGET)/master.raw: $(TARGET)/oem packages
-	$(MOBY) build -output raw -o $(TARGET)/master.raw master.yml
+	$(MOBY) build -output raw -dir $(TARGET) master.yml
 
-$(TARGET)/agent.raw: $(TARGET)/oem package
-	$(MOBY) build -output raw -o $(TARGET)/agent.raw agent.yml
+$(TARGET)/agent.raw: $(TARGET)/oem packages
+	$(MOBY) build -output raw -dir $(TARGET) agent.yml
 
 $(TARGET)/master-fs: $(TARGET)/master.tar
 	mkdir $(TARGET)/master-fs 2>/dev/null || true
@@ -70,9 +69,9 @@ $(TARGET)/agent-fs: $(TARGET)/agent.tar
 
 docker: $(TARGET)/master-fs $(TARGET)/agent-fs
 	echo -e "FROM scratch\nCOPY master-fs/ /" > $(TARGET)/Dockerfile
-	docker build -t mesanine/mesanine-master $(TARGET)
+	docker build -t mesanine/mesanine:master $(TARGET)
 	echo -e "FROM scratch\nCOPY agent-fs/ /" > $(TARGET)/Dockerfile
-	docker build -t mesanine/mesanine-agent $(TARGET)
+	docker build -t mesanine/mesanine:agent $(TARGET)
 
 run-master: master ignition run-master-cmd
 
@@ -86,3 +85,6 @@ run-agent-cmd:
 
 push-aws-agent: $(TARGET)/agent.raw
 	AWS_PROFILE=$(AWS_PROFILE) AWS_REGION=$(AWS_REGION) linuxkit -v push aws -bucket $(AWS_BUCKET) -img-name mesanine-agent-$(GIT_HASH) -timeout 1200 $(TARGET)/agent.raw
+
+push-aws-master: $(TARGET)/master.raw
+	AWS_PROFILE=$(AWS_PROFILE) AWS_REGION=$(AWS_REGION) linuxkit -v push aws -bucket $(AWS_BUCKET) -img-name mesanine-master-$(GIT_HASH) -timeout 1200 $(TARGET)/master.raw
