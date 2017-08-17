@@ -8,9 +8,30 @@ IMAGE_SIZE := 384M
 AWS_PROFILE := vektor
 AWS_REGION := us-east-1
 AWS_BUCKET := mesanine
-OEM := qemu
 
-.PHONY: all clean docker ignition run run-now packages push-aws
+OEM := "qemu"
+ifeq ($(MAKECMDGOALS),push-aws-master)
+OEM := "ec2"
+endif
+ifeq ($(MAKECMDGOALS),push-aws-agent)
+OEM := "ec2"
+endif
+
+
+.PHONY: \
+	all \
+	agent-kernel \
+	clean \
+	docker \
+	ignition \
+	master-kernel \
+	run-agent \
+	run-agent-cmd \
+	run-master \
+	run-master-cmd \
+	push-aws \
+	packages \
+	write-oem
 
 all: packages
 
@@ -26,38 +47,32 @@ clean:
 ignition:
 	terraform apply
 
-$(TARGET)/oem:
+write-oem:
 	echo -n ${OEM} > $(TARGET)/oem
 
-master: $(TARGET)/oem packages
-ifeq (${OEM},qemu)
+$(TARGET)/master.qcow2:
 	qemu-img create -o size=1024M -f qcow2 $(TARGET)/master.qcow2
-	$(MOBY) build -output kernel+initrd -dir $(TARGET) master.yml
-endif
-ifeq (${OEM},ec2)
-	$(MOBY) build -output raw -size $(IMAGE_SIZE) -dir $(TARGET) master.yml
-endif
 
-agent: $(TARGET)/oem packages
-ifeq (${OEM},qemu)
+$(TARGET)/agent.qcow2:
 	qemu-img create -o size=1024M -f qcow2 $(TARGET)/agent.qcow2
-	$(MOBY) build -output kernel+initrd -dir $(TARGET) agent.yml
-endif
-ifeq (${OEM},ec2)
-	$(MOBY) build -output raw -size $(IMAGE_SIZE) -dir $(TARGET) agent.yml
-endif
 
-$(TARGET)/master.tar: $(TARGET)/oem packages
+$(TARGET)/master.tar: packages write-oem
 	$(MOBY) build -output tar -o $(TARGET)/master.tar master.yml
 
-$(TARGET)/agent.tar: $(TARGET)/oem packages
+$(TARGET)/agent.tar: packages write-oem
 	$(MOBY) build -output tar -o $(TARGET)/agent.tar agent.yml
 
-$(TARGET)/master.raw: $(TARGET)/oem packages
+$(TARGET)/master.raw: packages write-oem
 	$(MOBY) build -output raw -dir $(TARGET) master.yml
 
-$(TARGET)/agent.raw: $(TARGET)/oem packages
+$(TARGET)/agent.raw: packages write-oem
 	$(MOBY) build -output raw -dir $(TARGET) agent.yml
+
+master-kernel: packages write-oem
+	$(MOBY) build -output kernel+initrd -dir $(TARGET) master.yml
+
+agent-kernel: packages write-oem
+	$(MOBY) build -output kernel+initrd -dir $(TARGET) agent.yml
 
 $(TARGET)/master-fs: $(TARGET)/master.tar
 	mkdir $(TARGET)/master-fs 2>/dev/null || true
@@ -73,9 +88,9 @@ docker: $(TARGET)/master-fs $(TARGET)/agent-fs
 	echo -e "FROM scratch\nCOPY agent-fs/ /" > $(TARGET)/Dockerfile
 	docker build -t mesanine/mesanine:agent $(TARGET)
 
-run-master: master ignition run-master-cmd
+run-master: master-kernel ignition run-master-cmd
 
-run-agent: agent ignition run-agent-cmd
+run-agent: agent-kernel ignition run-agent-cmd
 
 run-master-cmd:
 	$(LINUXKIT) run qemu -mem 8000 -publish "2181:2181" -publish "2222:22" -publish "2379:2379" -publish "5050:5050" -publish "8080:8080" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/master.ign" -disk=file=$(TARGET)/master.qcow,size=2G,format=qcow2 -kernel $(TARGET)/master
