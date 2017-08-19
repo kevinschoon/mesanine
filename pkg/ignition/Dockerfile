@@ -14,4 +14,3 @@ FROM scratch
 ENTRYPOINT []
 
 COPY --from=source /go/src/github.com/coreos/ignition/bin/amd64/ignition /usr/bin/
-COPY etc/ /etc/

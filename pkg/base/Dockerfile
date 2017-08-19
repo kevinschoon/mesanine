@@ -13,6 +13,7 @@ RUN mkdir -p /base/etc/apk \
   e2fsprogs-extra \
   btrfs-progs \
   musl-dev \
+  sgdisk \
   sfdisk \
   util-linux-dev  \
   linux-headers \
@@ -20,5 +21,7 @@ RUN mkdir -p /base/etc/apk \
   libseccomp-dev \
   && rm -rv /base/dev/*
 
+# Ignition is hard-coded to look in /sbin/sgdisk
+RUN ln -sv /usr/bin/sgdisk /sbin/sgdisk
+
 COPY add-pkgs.sh /usr/bin/add-pkgs
-COPY etc/ /base/etc/

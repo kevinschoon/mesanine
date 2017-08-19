@@ -6,8 +6,8 @@ Ignition (like systemd units) are not supported!
 */
 
 data "ignition_file" "mesos_master_envs_json" {
-  filesystem = "root"
-  path       = "${var.config_path}/mesos-master/envs.json"
+  filesystem = "var"
+  path       = "/mesanine/mesos-master/envs.json"
 
   content {
     content = "${jsonencode(var.mesos_master_envs)}"
@@ -15,8 +15,8 @@ data "ignition_file" "mesos_master_envs_json" {
 }
 
 data "ignition_file" "mesos_agent_envs_json" {
-  filesystem = "root"
-  path       = "${var.config_path}/mesos-agent/envs.json"
+  filesystem = "var"
+  path       = "/mesanine/mesos-agent/envs.json"
 
   content {
     content = "${jsonencode(var.mesos_agent_envs)}"
@@ -24,8 +24,8 @@ data "ignition_file" "mesos_agent_envs_json" {
 }
 
 data "ignition_file" "marathon_envs_json" {
-  filesystem = "root"
-  path       = "${var.config_path}/marathon/envs.json"
+  filesystem = "var"
+  path       = "/mesanine/marathon/envs.json"
 
   content {
     content = "${jsonencode(var.marathon_envs)}"
@@ -33,8 +33,8 @@ data "ignition_file" "marathon_envs_json" {
 }
 
 data "ignition_file" "zetcd_envs_json" {
-  filesystem = "root"
-  path       = "${var.config_path}/zetcd/envs.json"
+  filesystem = "var"
+  path       = "/mesanine/zetcd/envs.json"
 
   content {
     content = "${jsonencode(var.zetcd_envs)}"
@@ -42,8 +42,8 @@ data "ignition_file" "zetcd_envs_json" {
 }
 
 data "ignition_file" "authorized_keys" {
-  filesystem = "root"
-  path       = "${var.config_path}/sshd/authorized_keys"
+  filesystem = "var"
+  path       = "/mesanine/sshd/authorized_keys"
   mode       = 0600
 
   content {
@@ -52,8 +52,8 @@ data "ignition_file" "authorized_keys" {
 }
 
 data "ignition_file" "docker_lib" {
-  filesystem = "root"
-  path       = "/var/lib/docker/_placeholder"
+  filesystem = "var"
+  path       = "/lib/docker/_placeholder"
   mode       = 0600
 
   content {
@@ -61,13 +61,30 @@ data "ignition_file" "docker_lib" {
   }
 }
 
-data "ignition_filesystem" "mnt" {
-  name = "mnt"
+data "ignition_file" "mesos_run" {
+  filesystem = "var"
+  path       = "/run/mesos/_placeholder"
+  mode       = 0600
+
+  content {
+    content = "1"
+  }
+}
+
+data "ignition_disk" "var" {
+  device     = "/dev/sda"
+  wipe_table = true
+}
+
+data "ignition_filesystem" "var" {
+  name = "var"
 
   mount {
-    device = "/dev/sda"
-    format = "ext4"
-    create = true
+    device  = "/dev/sda"
+    format  = "ext4"
+    create  = true
+    force   = true
+    options = ["-L", "ROOT"]
   }
 }
 
@@ -80,10 +97,15 @@ data "ignition_config" "mesanine-master" {
     "${data.ignition_file.mesos_agent_envs_json.id}",
     "${data.ignition_file.authorized_keys.id}",
     "${data.ignition_file.docker_lib.id}",
+    "${data.ignition_file.mesos_run.id}",
+  ]
+
+  disks = [
+    "${data.ignition_disk.var.id}",
   ]
 
   filesystems = [
-    "${data.ignition_filesystem.mnt.id}",
+    "${data.ignition_filesystem.var.id}",
   ]
 }
 
@@ -92,6 +114,15 @@ data "ignition_config" "mesanine-agent" {
     "${data.ignition_file.mesos_agent_envs_json.id}",
     "${data.ignition_file.authorized_keys.id}",
     "${data.ignition_file.docker_lib.id}",
+    "${data.ignition_file.mesos_run.id}",
+  ]
+
+  disks = [
+    "${data.ignition_disk.var.id}",
+  ]
+
+  filesystems = [
+    "${data.ignition_filesystem.var.id}",
   ]
 }
 

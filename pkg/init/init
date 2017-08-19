@@ -23,6 +23,8 @@ function recovery() {
   exec /bin/sh
 }
 
+ln -sv /usr/bin/sgdisk /sbin/sgdisk
+
 /usr/bin/ignition --stage disks --oem $(cat /oem)
 
 [[ $? -eq 0 ]] || recovery

@@ -15,19 +15,6 @@ mount -n -t proc proc /proc -o nodev,nosuid,noexec,relatime
 mount -n -t tmpfs tmpfs /run -o nodev,nosuid,noexec,relatime,size=10%,mode=755
 mount -n -t tmpfs tmpfs /tmp -o nodev,nosuid,noexec,relatime,size=10%,mode=1777
 
-# mount tmpfs for /var. This may be overmounted with a persistent filesystem later
-mount -n -t tmpfs tmpfs /var -o nodev,nosuid,noexec,relatime,size=50%,mode=755
-# add standard directories in /var
-mkdir -m 755 /var/cache
-mkdir -m 555 /var/empty
-mkdir -m 755 /var/lib
-mkdir -m 755 /var/local
-mkdir -m 755 /var/lock
-mkdir -m 755 /var/log
-mkdir -m 755 /var/opt
-ln -s /run /var/run
-mkdir -m 755 /var/spool
-mkdir -m 1777 /var/tmp
 
 # mount devfs
 mount -n -t devtmpfs dev /dev -o nosuid,noexec,relatime,size=10m,nr_inodes=248418,mode=755
@@ -124,6 +111,23 @@ ip link set lo up
 # for containerizing dhcpcd and other containers that need writable /etc/resolv.conf
 [ -L /etc/resolv.conf ] && mkdir -p $(dirname $(readlink -n /etc/resolv.conf)) && touch /etc/resolv.conf
 
+# mount tmpfs for /var. This may be overmounted with a persistent filesystem later
+#mount -n -t tmpfs tmpfs /var -o nodev,nosuid,noexec,relatime,size=50%,mode=755
+mount_opts=rw,relatime
+# TODO Hack until Ignition has a way to handle mounts (without systemd)
+mount -o $mount_opts /dev/sda /var || mount -o $mount_opts /dev/xvda /var
+# add standard directories in /var
+mkdir -m 755 /var/cache
+mkdir -m 555 /var/empty
+mkdir -m 755 /var/lib
+mkdir -m 755 /var/local
+mkdir -m 755 /var/lock
+mkdir -m 755 /var/log
+mkdir -m 755 /var/opt
+ln -s /run /var/run
+mkdir -m 755 /var/spool
+mkdir -m 1777 /var/tmp
+
 # make / rshared
 mount --make-rshared /
 
@@ -131,9 +135,34 @@ mount --make-rshared /
 ulimit -n 1048576
 ulimit -p unlimited
 
-# execute other init processes
-INITS="$(find /etc/init.d ! -type d 2>/dev/null | sort)"
-for f in $INITS
-do
-	$f
-done
+/usr/bin/ignition --oem $(cat /oem) --stage files
+
+GAFFER="/usr/bin/gaffer"
+LOG_DEVICE="/dev/ttyS0"
+
+# Debug mode is toggleable with kernel parameters
+if [[ "$(grep 'gaffer=debug' /proc/cmdline)" ]] ; then {
+  GAFFER="$GAFFER --debug --device=$LOG_DEVICE"
+} else {
+  GAFFER="$GAFFER --device=$LOG_DEVICE"
+}
+fi
+
+# Run each onboot container to completion
+$GAFFER --hard=true init --mount=true --once=true /containers/onboot
+
+# Make Mesos run dir
+# TODO: move elsewhere
+mkdir -p /var/run/mesos
+
+# Wait until we've aquired agent metadata
+# before going forward. # TODO: Need a better
+# way to wait until all underlying subsystems
+# are initialized and we can go forward with 
+# the boot process.
+#$GAFFER wait /var/mesanine/mesos-agent
+
+# Run the Gaffer init process
+exec $GAFFER --hard=true init --mount=true /containers/services &
+
+

@@ -5,4 +5,3 @@ WORKDIR /
 ENTRYPOINT []
 
 COPY --from=gaffer /usr/bin/gaffer /usr/bin/
-COPY etc/ /etc/
