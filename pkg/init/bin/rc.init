@@ -135,7 +135,10 @@ mount --make-rshared /
 ulimit -n 1048576
 ulimit -p unlimited
 
-/usr/bin/ignition --oem $(cat /oem) --stage files
+dhcpcd --oneshot --waitip --nobackground --config /etc/dhcpcd.conf
+
+/usr/bin/ignition --stage disks --oem $(cat /oem) && \
+  /usr/bin/ignition --oem $(cat /oem) --stage files
 
 GAFFER="/usr/bin/gaffer"
 LOG_DEVICE="/dev/ttyS0"

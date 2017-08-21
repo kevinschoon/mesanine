@@ -14,9 +14,8 @@ RUN go-compile.sh /go/src/init/
 FROM mesanine/base AS base
 
 FROM scratch
-COPY --from=build /go/bin/init /switch_root
+COPY --from=build /go/bin/init /
 COPY --from=build usermode-helper /sbin/
 COPY --from=base /base/ /
 COPY etc etc/
 COPY bin bin/
-COPY init /
