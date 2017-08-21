@@ -1,13 +1,12 @@
 TARGET := ./target
-MOBY := ./tools/linuxkit/bin/moby
+MOBY := ./tools/moby/moby
 LINUXKIT := ./tools/linuxkit/bin/linuxkit
 PACKAGES := $(shell find ./pkg -mindepth 1 -maxdepth 1 -type d -printf "%f\n" |sort)
 METADATA := $(shell go run ./util/metadata/metadata.go ./config)
 GIT_HASH := $(shell git rev-parse HEAD)
-IMAGE_SIZE := 384M
-AWS_PROFILE := vektor
-AWS_REGION := us-east-1
-AWS_BUCKET := mesanine
+AWS_PROFILE := mesanine
+AWS_REGION := eu-west-2
+AWS_BUCKET := mesanine-ami
 
 OEM := "qemu"
 ifeq ($(MAKECMDGOALS),push-aws-master)
@@ -31,7 +30,8 @@ endif
 	run-master-cmd \
 	push-aws \
 	packages \
-	write-oem
+	write-oem \
+	submodules
 
 all: packages
 
@@ -50,29 +50,29 @@ ignition:
 write-oem:
 	echo -n ${OEM} > $(TARGET)/oem
 
-$(TARGET)/master.qcow2:
-	qemu-img create -o size=1024M -f qcow2 $(TARGET)/master.qcow2
+submodules:
+	git submodule foreach sync
+	cd ./tools/linuxkit && make ./bin/linuxkit
+	cd ./tools/moby && make
+	#git submodule foreach git pull
 
-$(TARGET)/agent.qcow2:
-	qemu-img create -o size=1024M -f qcow2 $(TARGET)/agent.qcow2
+$(TARGET)/master.qcow2: write-oem packages
+	$(MOBY) build -output qcow2 -size 4092 -dir $(TARGET) master.yml
 
-$(TARGET)/master.tar: packages write-oem
+$(TARGET)/agent.qcow2: write-oem packages
+	$(MOBY) build -output qcow2 -size 4092 -dir $(TARGET) agent.yml
+
+$(TARGET)/master.tar: write-oem packages
 	$(MOBY) build -output tar -o $(TARGET)/master.tar master.yml
 
-$(TARGET)/agent.tar: packages write-oem
+$(TARGET)/agent.tar: write-oem packages
 	$(MOBY) build -output tar -o $(TARGET)/agent.tar agent.yml
 
-$(TARGET)/master.raw: packages write-oem
+$(TARGET)/master.raw: write-oem packages
 	$(MOBY) build -output raw -dir $(TARGET) master.yml
 
-$(TARGET)/agent.raw: packages write-oem
+$(TARGET)/agent.raw: write-oem packages
 	$(MOBY) build -output raw -dir $(TARGET) agent.yml
-
-master-kernel: packages write-oem
-	$(MOBY) build -output kernel+initrd -dir $(TARGET) master.yml
-
-agent-kernel: packages write-oem
-	$(MOBY) build -output kernel+initrd -dir $(TARGET) agent.yml
 
 $(TARGET)/master-fs: $(TARGET)/master.tar
 	mkdir $(TARGET)/master-fs 2>/dev/null || true
@@ -88,15 +88,15 @@ docker: $(TARGET)/master-fs $(TARGET)/agent-fs
 	echo -e "FROM scratch\nCOPY agent-fs/ /" > $(TARGET)/Dockerfile
 	docker build -t mesanine/mesanine:agent $(TARGET)
 
-run-master: master-kernel ignition run-master-cmd
+run-master: $(TARGET)/master.qcow2 ignition run-master-cmd
 
-run-agent: agent-kernel ignition run-agent-cmd
+run-agent: $(TARGET)/agent.qcow2 ignition run-agent-cmd
 
 run-master-cmd:
-	$(LINUXKIT) run qemu -mem 8000 -publish "2181:2181" -publish "2222:22" -publish "2379:2379" -publish "5050:5050" -publish "8080:8080" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/master.ign" -disk=file=$(TARGET)/master.qcow,size=2G,format=qcow2 -kernel $(TARGET)/master
+	$(LINUXKIT) run qemu -mem 8000 -publish "2181:2181" -publish "2222:22" -publish "2379:2379" -publish "5050:5050" -publish "8080:8080" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/master.ign" $(TARGET)/master.qcow2
 
 run-agent-cmd:
-	$(LINUXKIT) run qemu -mem 4092 -publish "2222:22" -publish "5051:5051" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/agent.ign" -disk=file=$(TARGET)/agent.qcow,size=2G,format=qcow2 -kernel $(TARGET)/agent
+	$(LINUXKIT) run qemu -mem 4092 -publish "2222:22" -publish "5051:5051" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/agent.ign" $(TARGET)/agent.qcow2
 
 push-aws-agent: $(TARGET)/agent.raw
 	AWS_PROFILE=$(AWS_PROFILE) AWS_REGION=$(AWS_REGION) linuxkit -v push aws -bucket $(AWS_BUCKET) -img-name mesanine-agent-$(GIT_HASH) -timeout 1200 $(TARGET)/agent.raw
