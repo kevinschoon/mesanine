@@ -82,9 +82,11 @@ $(TARGET)/agent-fs: $(TARGET)/agent.tar
 	mkdir $(TARGET)/agent-fs 2>/dev/null || true
 	tar -C $(TARGET)/agent-fs -xf $(TARGET)/agent.tar
 
-docker: $(TARGET)/master-fs $(TARGET)/agent-fs
+docker-master: $(TARGET)/master-fs
 	echo -e "FROM scratch\nCOPY master-fs/ /" > $(TARGET)/Dockerfile
 	docker build -t mesanine/mesanine:master $(TARGET)
+
+docker-agent: $(TARGET)/agent-fs
 	echo -e "FROM scratch\nCOPY agent-fs/ /" > $(TARGET)/Dockerfile
 	docker build -t mesanine/mesanine:agent $(TARGET)
 
