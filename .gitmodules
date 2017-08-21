@@ -4,3 +4,6 @@
 [submodule "tools/linuxkit"]
 	path = tools/linuxkit
 	url = https://github.com/mesanine/linuxkit
+[submodule "tools/moby"]
+	path = tools/moby
+	url = https://github.com/mesanine/tool
