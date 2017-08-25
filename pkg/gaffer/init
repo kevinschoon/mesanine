@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# TODO: Make Gaffer run like a busybox "multi-call binary"
+# E.g. ln -sv /sbin/init /usr/bin/gaffer
+exec /usr/bin/gaffer --device=/dev/console --debug init /mnt /sbin/init
