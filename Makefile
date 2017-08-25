@@ -19,11 +19,9 @@ endif
 
 .PHONY: \
 	all \
-	agent-kernel \
 	clean \
 	docker \
 	ignition \
-	master-kernel \
 	run-agent \
 	run-agent-cmd \
 	run-master \
@@ -56,11 +54,13 @@ submodules:
 	cd ./tools/moby && make
 	#git submodule foreach git pull
 
-$(TARGET)/master.qcow2: write-oem packages
-	$(MOBY) build -output qcow2 -size 4092 -dir $(TARGET) master.yml
+$(TARGET)/master: write-oem packages
+	$(MOBY) build -output kernel+initrd -dir $(TARGET) master.yml
+	touch $(TARGET)/master
 
-$(TARGET)/agent.qcow2: write-oem packages
-	$(MOBY) build -output qcow2 -size 4092 -dir $(TARGET) agent.yml
+$(TARGET)/agent: write-oem packages
+	$(MOBY) build -output kernel+initrd -dir $(TARGET) agent.yml
+	touch $(TARGET)/agent
 
 $(TARGET)/master.tar: write-oem packages
 	$(MOBY) build -output tar -o $(TARGET)/master.tar master.yml
@@ -90,15 +90,15 @@ docker-agent: $(TARGET)/agent-fs
 	echo -e "FROM scratch\nCOPY agent-fs/ /" > $(TARGET)/Dockerfile
 	docker build -t mesanine/mesanine:agent $(TARGET)
 
-run-master: $(TARGET)/master.qcow2 ignition run-master-cmd
+run-master: $(TARGET)/master write-oem packages ignition run-master-cmd
 
-run-agent: $(TARGET)/agent.qcow2 ignition run-agent-cmd
+run-agent: $(TARGET)/agent write-oem packages ignition run-agent-cmd
 
 run-master-cmd:
-	$(LINUXKIT) run qemu -mem 8000 -publish "2181:2181" -publish "2222:22" -publish "2379:2379" -publish "5050:5050" -publish "8080:8080" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/master.ign" $(TARGET)/master.qcow2
+	$(LINUXKIT) run qemu -mem 8000 -publish "2181:2181" -publish "2222:22" -publish "2379:2379" -publish "5050:5050" -publish "8080:8080" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/master.ign" -kernel $(TARGET)/master
 
 run-agent-cmd:
-	$(LINUXKIT) run qemu -mem 4092 -publish "2222:22" -publish "5051:5051" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/agent.ign" $(TARGET)/agent.qcow2
+	$(LINUXKIT) run qemu -mem 4092 -publish "2222:22" -publish "5051:5051" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/agent.ign" -kernel $(TARGET)/agent
 
 push-aws-agent: $(TARGET)/agent.raw
 	AWS_PROFILE=$(AWS_PROFILE) AWS_REGION=$(AWS_REGION) linuxkit -v push aws -bucket $(AWS_BUCKET) -img-name mesanine-agent-$(GIT_HASH) -timeout 1200 $(TARGET)/agent.raw
