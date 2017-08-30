@@ -71,7 +71,7 @@ data "ignition_file" "mesos_run" {
   }
 }
 
-data "ignition_config" "mesanine-master" {
+data "ignition_config" "mesanine" {
   files = [
     "${data.ignition_file.mesos_master_envs_json.id}",
     "${data.ignition_file.marathon_envs_json.id}",
@@ -84,19 +84,6 @@ data "ignition_config" "mesanine-master" {
   ]
 }
 
-data "ignition_config" "mesanine-agent" {
-  files = [
-    "${data.ignition_file.mesos_agent_envs_json.id}",
-    "${data.ignition_file.authorized_keys.id}",
-    "${data.ignition_file.docker_lib.id}",
-    "${data.ignition_file.mesos_run.id}",
-  ]
-}
-
-output ignition-cfg-master {
-  value = "${data.ignition_config.mesanine-master.rendered}"
-}
-
-output ignition-cfg-agent {
-  value = "${data.ignition_config.mesanine-agent.rendered}"
+output ignition-cfg {
+  value = "${data.ignition_config.mesanine.rendered}"
 }

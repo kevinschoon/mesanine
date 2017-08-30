@@ -1,13 +1,8 @@
-FROM mesanine/base AS base
+FROM alpine:3.6
 
-RUN add-pkgs openssl
+RUN apk add --no-cache openssl
 
-FROM quay.io/vektorcloud/etcd:3.2 as etcd
-
-FROM scratch
-
-COPY --from=base /base/ /
-COPY --from=etcd /bin/etcd /bin/etcd
+COPY --from=quay.io/vektorcloud/etcd:3.2 /bin/etcd /bin/etcd
 
 ENV ETCD_ADVERTISE_CLIENT_URLS http://0.0.0.0:2379
 ENV ETCD_LISTEN_CLIENT_URLS http://0.0.0.0:2379

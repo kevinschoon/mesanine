@@ -1,10 +1,6 @@
-FROM mesanine/base AS base
-FROM quay.io/vektorcloud/zetcd AS zetcd
+FROM alpine:3.6
 
-FROM scratch
-
-COPY --from=base /base/ /
-COPY --from=zetcd /usr/bin/zetcd /usr/bin/
+COPY --from=quay.io/vektorcloud/zetcd /usr/bin/zetcd /usr/bin/
 
 LABEL org.mobyproject.config='{"pid": "host", "net": "host", "capabilities": ["CAP_NET_BIND_SERVICE"]}'
 

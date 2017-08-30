@@ -1,12 +1,19 @@
-TARGET := ./target
-MOBY := ./tools/moby/moby
-LINUXKIT := ./tools/linuxkit/bin/linuxkit
+PWD := $(shell pwd)
+TARGET := $(PWD)/target
+MOBY := $(PWD)/tools/moby/moby
+LINUXKIT := $(PWD)/tools/linuxkit/bin/linuxkit
 PACKAGES := $(shell find ./pkg -mindepth 1 -maxdepth 1 -type d -printf "%f\n" |sort)
 METADATA := $(shell go run ./util/metadata/metadata.go ./config)
 GIT_HASH := $(shell git rev-parse HEAD)
 AWS_PROFILE := mesanine
 AWS_REGION := eu-west-2
 AWS_BUCKET := mesanine-ami
+IGLDFLAGS= -X github.com/coreos/ignition/internal/version.Raw=mesanine \
+					 -X github.com/coreos/ignition/internal/platform.Raw=linuxkit \
+					 -extldflags \"-fno-PIC -static\"
+
+# TODO
+GAFFER_SRC := /home/kevin/repos/github.com/mesanine/gaffer
 
 OEM := "qemu"
 ifeq ($(MAKECMDGOALS),push-aws-master)
@@ -16,16 +23,13 @@ ifeq ($(MAKECMDGOALS),push-aws-agent)
 OEM := "ec2"
 endif
 
-
 .PHONY: \
 	all \
 	clean \
 	docker \
 	ignition \
-	run-agent \
-	run-agent-cmd \
-	run-master \
-	run-master-cmd \
+	run \
+	run-cmd \
 	push-aws \
 	packages \
 	write-oem \
@@ -33,7 +37,7 @@ endif
 
 all: packages
 
-packages:
+packages: ignition
 	@echo "Building packages $(PACKAGES)"
 	for i in $(PACKAGES); do \
 		docker build -t "mesanine/$$i" "pkg/$$i" || exit 1; \
@@ -43,7 +47,7 @@ clean:
 	rm -rf $(TARGET)/**
 
 ignition:
-	terraform apply
+	docker build -t mesanine/ignition-bin -f tools/Dockerfile.ignition tools
 
 write-oem:
 	echo -n ${OEM} > $(TARGET)/oem
@@ -54,54 +58,31 @@ submodules:
 	cd ./tools/moby && make
 	#git submodule foreach git pull
 
-$(TARGET)/master: write-oem packages
-	$(MOBY) build -output kernel+initrd -dir $(TARGET) master.yml
-	touch $(TARGET)/master
+$(TARGET)/mesanine.ign:
+	terraform apply
 
-$(TARGET)/agent: write-oem packages
-	$(MOBY) build -output kernel+initrd -dir $(TARGET) agent.yml
-	touch $(TARGET)/agent
+$(TARGET)/mesanine: write-oem packages
+	$(MOBY) build -output kernel+initrd -dir $(TARGET) mesanine.yml
+	touch $(TARGET)/mesanine
 
-$(TARGET)/master.tar: write-oem packages
-	$(MOBY) build -output tar -o $(TARGET)/master.tar master.yml
+$(TARGET)/mesanine.tar: write-oem packages
+	$(MOBY) build -output tar -o $(TARGET)/mesanine.tar mesanine.yml
 
-$(TARGET)/agent.tar: write-oem packages
-	$(MOBY) build -output tar -o $(TARGET)/agent.tar agent.yml
+$(TARGET)/mesanine.raw: write-oem packages
+	$(MOBY) build -output raw -dir $(TARGET) mesanine.yml
 
-$(TARGET)/master.raw: write-oem packages
-	$(MOBY) build -output raw -dir $(TARGET) master.yml
+$(TARGET)/fs: $(TARGET)/mesanine.tar
+	mkdir $(TARGET)/fs 2>/dev/null || true
+	tar -C $(TARGET)/fs -xf $(TARGET)/mesanine.tar
 
-$(TARGET)/agent.raw: write-oem packages
-	$(MOBY) build -output raw -dir $(TARGET) agent.yml
+docker: $(TARGET)/fs
+	echo -e "FROM scratch\nCOPY fs/ /" > $(TARGET)/Dockerfile
+	docker build -t mesanine/mesanine:latest $(TARGET)
 
-$(TARGET)/master-fs: $(TARGET)/master.tar
-	mkdir $(TARGET)/master-fs 2>/dev/null || true
-	tar -C $(TARGET)/master-fs -xf $(TARGET)/master.tar
+run: $(TARGET)/mesanine ignition $(TARGET)/mesanine.ign run-cmd
 
-$(TARGET)/agent-fs: $(TARGET)/agent.tar
-	mkdir $(TARGET)/agent-fs 2>/dev/null || true
-	tar -C $(TARGET)/agent-fs -xf $(TARGET)/agent.tar
+run-cmd:
+	$(LINUXKIT) run qemu -mem 8000 -publish "2181:2181" -publish "2222:22" -publish "2379:2379" -publish "5050:5050" -publish "8080:8080" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/mesanine.ign" -kernel $(TARGET)/mesanine
 
-docker-master: $(TARGET)/master-fs
-	echo -e "FROM scratch\nCOPY master-fs/ /" > $(TARGET)/Dockerfile
-	docker build -t mesanine/mesanine:master $(TARGET)
-
-docker-agent: $(TARGET)/agent-fs
-	echo -e "FROM scratch\nCOPY agent-fs/ /" > $(TARGET)/Dockerfile
-	docker build -t mesanine/mesanine:agent $(TARGET)
-
-run-master: $(TARGET)/master write-oem packages ignition run-master-cmd
-
-run-agent: $(TARGET)/agent write-oem packages ignition run-agent-cmd
-
-run-master-cmd:
-	$(LINUXKIT) run qemu -mem 8000 -publish "2181:2181" -publish "2222:22" -publish "2379:2379" -publish "5050:5050" -publish "8080:8080" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/master.ign" -kernel $(TARGET)/master
-
-run-agent-cmd:
-	$(LINUXKIT) run qemu -mem 4092 -publish "2222:22" -publish "5051:5051" -publish "9090:9090" -publish "10000:10000" -extra="-fw_cfg name=opt/com.coreos/config,file=$(TARGET)/agent.ign" -kernel $(TARGET)/agent
-
-push-aws-agent: $(TARGET)/agent.raw
-	AWS_PROFILE=$(AWS_PROFILE) AWS_REGION=$(AWS_REGION) linuxkit -v push aws -bucket $(AWS_BUCKET) -img-name mesanine-agent-$(GIT_HASH) -timeout 1200 $(TARGET)/agent.raw
-
-push-aws-master: $(TARGET)/master.raw
-	AWS_PROFILE=$(AWS_PROFILE) AWS_REGION=$(AWS_REGION) linuxkit -v push aws -bucket $(AWS_BUCKET) -img-name mesanine-master-$(GIT_HASH) -timeout 1200 $(TARGET)/master.raw
+push-aws: $(TARGET)/mesanine.raw
+	AWS_PROFILE=$(AWS_PROFILE) AWS_REGION=$(AWS_REGION) linuxkit -v push aws -bucket $(AWS_BUCKET) -img-name mesanine-$(GIT_HASH) -timeout 1200 $(TARGET)/mesanine.raw

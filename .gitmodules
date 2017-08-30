@@ -1,9 +1,9 @@
-[submodule "pkg/ignition/src"]
-	path = pkg/ignition/src
-	url = https://github.com/mesanine/ignition
 [submodule "tools/linuxkit"]
 	path = tools/linuxkit
 	url = https://github.com/mesanine/linuxkit
 [submodule "tools/moby"]
 	path = tools/moby
 	url = https://github.com/mesanine/tool
+[submodule "tools/ignition"]
+	path = tools/ignition
+	url = https://github.com/mesanine/ignition

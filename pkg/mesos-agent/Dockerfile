@@ -1,6 +1,6 @@
-FROM mesanine/base AS base
+FROM alpine:3.6
 
-RUN add-pkgs \
+RUN apk add --no-cache \
   bash \
   coreutils \
   curl \
@@ -12,11 +12,8 @@ RUN add-pkgs \
 
 FROM quay.io/vektorcloud/mesos AS mesos
 
-FROM scratch
-
-COPY --from=base /base/ /
-COPY --from=mesos /usr/local /usr/local
-COPY --from=mesos /usr/bin/docker* /usr/bin/
+COPY --from=quay.io/vektorcloud/mesos /usr/local /usr/local
+COPY --from=quay.io/vektorcloud/mesos /usr/bin/docker* /usr/bin/
 
 COPY discover-ip /sbin/
 

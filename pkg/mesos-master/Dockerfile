@@ -1,6 +1,6 @@
-FROM mesanine/base AS base
+FROM alpine:3.6
 
-RUN add-pkgs \
+RUN apk add --no-cache \
   bash \
   coreutils \
   curl \
@@ -10,15 +10,10 @@ RUN add-pkgs \
   subversion \
   tar 
 
-FROM quay.io/vektorcloud/mesos AS mesos
-
-FROM scratch
-
-COPY --from=base /base/ /
-COPY --from=mesos /usr/local /usr/local
+COPY --from=quay.io/vektorcloud/mesos /usr/local /usr/local
 
 COPY discover-ip /sbin/
 
-LABEL org.mobyproject.config='{"pid": "host", "net": "host", "binds": ["/var/run/mesos:/var/run/mesos"], "capabilities": ["CAP_NET_BIND_SERVICE"]}'
+LABEL org.mobyproject.config='{"pid": "host", "net": "host", "binds": ["/var/run:/var/run"], "capabilities": ["CAP_NET_BIND_SERVICE"]}'
 
 CMD ["mesos-master", "--ip_discovery_command=/sbin/discover-ip", "--work_dir=/var/run/mesos"]

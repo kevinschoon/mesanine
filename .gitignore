@@ -3,3 +3,4 @@ target/*
 config/files/*
 .terraform
 terraform.tfstate*
+pkg/base/bin/gaffer
