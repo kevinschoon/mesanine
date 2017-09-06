@@ -1,23 +1,15 @@
-# mesanine
+<img width="300px" src="https://raw.githubusercontent.com/mesanine/www/master/mesanine/static/images/logo.png" alt="logo"/>
 
-Mesanine is a minimalist container-oriented Linux distribution based on [Alpine](https://alpinelinux.org) for running [Apache Mesos](https://mesos.apache.org). It is assembled with [linuxkit](https://github.com/linuxkit/linuxkit).
+## What Is Mesanine?
 
-## Building
+Mesanine is a container oriented Linux distribution for running a diverse range of workloads on [Apache Mesos](https://mesos.apache.org). It is designed to be minimal, secure, and simple to manage. Mesanine is built from the ground up with the [LinuxKit](https://github.com/linuxkit/linuxkit) platform from the [Moby](https://github.com/moby/tool) project. We are actively looking for feedback and contributors! Please feel free to open up an [issue](https://github.com/mesanine/mesanine/issues) on Github.
 
-Install the most recent version of [linuxkit](https://github.com/linuxkit/linuxkit) and ensure the `moby` executable is available in your path. You also need a working `make` system.
-
-    go get github.com/vektorlab/mesanine
-    cd $GOPATH/src/github.com/vektorlab/mesanine
-    make
-
-### Targets
-
-Mesanine has two supported build targets: `aws`, `qemu`.
-
-#### qemu
-
-    make && make qemu && make run-qemu
+**Mesanine is still in very early stages of development, and not yet suitable for real world use!**
 
 
-#### aws
-TODO
+### Why Are You Building Mesanine?
+
+Mesos is arguably the most proven and powerful container orchestration and resource scheduler in the industry 
+but it can also be very complicated and challenging to administer. Having maintained large Mesos installations 
+for years we aim to improve and modernize some of the areas we consider challenging about existing platforms
+and tooling.
