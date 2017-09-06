@@ -3,7 +3,6 @@ TARGET := $(PWD)/target
 MOBY := $(PWD)/tools/moby/moby
 LINUXKIT := $(PWD)/tools/linuxkit/bin/linuxkit
 PACKAGES := $(shell find ./pkg -mindepth 1 -maxdepth 1 -type d -printf "%f\n" |sort)
-METADATA := $(shell go run ./util/metadata/metadata.go ./config)
 GIT_HASH := $(shell git rev-parse HEAD)
 AWS_PROFILE := mesanine
 AWS_REGION := eu-west-2
@@ -46,9 +45,6 @@ packages: ignition
 clean:
 	rm -rf $(TARGET)/**
 
-ignition:
-	docker build -t mesanine/ignition-bin -f tools/Dockerfile.ignition tools
-
 write-oem:
 	echo -n ${OEM} > $(TARGET)/oem
 
@@ -59,7 +55,8 @@ submodules:
 	#git submodule foreach git pull
 
 $(TARGET)/mesanine.ign:
-	terraform apply
+	cat ./config/etc/gaffer.json |jq .
+	go run ./tools/metadata/metadata.go ./config > $@ 
 
 $(TARGET)/mesanine: write-oem packages
 	$(MOBY) build -output kernel+initrd -dir $(TARGET) mesanine.yml

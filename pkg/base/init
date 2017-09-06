@@ -2,4 +2,4 @@
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 #exec gaffer --debug --device=/dev/console init --single=true /mnt
-exec gaffer --device=/dev/console init --helper=/bin/gaffer-helper /mnt 
+exec /bin/gaffer --device=/dev/console --config="" init --stage=PRE_INIT

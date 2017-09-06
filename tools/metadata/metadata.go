@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-const configPath = "/var/mesanine"
+const configPath = ""
 
 func maybe(err error) {
 	if err != nil {
@@ -86,7 +86,7 @@ func newWalkFn(storage *types.Storage) func(*os.File) error {
 
 func main() {
 	if len(os.Args) != 2 {
-		fmt.Println("usage: metadata.go PATH TARGET")
+		fmt.Println("usage: metadata.go PATH")
 		os.Exit(1)
 	}
 	configPath := os.Args[1]

@@ -40,3 +40,5 @@ COPY --from=quay.io/vektorcloud/runc /usr/bin/runc /bin/
 COPY bin/ /bin/
 COPY etc/ /etc/
 COPY init /
+
+RUN rm -v /sbin/init && ln -sv /bin/gaffer /sbin/init

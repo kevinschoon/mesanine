@@ -1,6 +1,6 @@
 *.swp
 target/*
-config/files/*
+config/var/mesanine/sshd/authorized_keys
 .terraform
 terraform.tfstate*
 pkg/base/bin/gaffer
