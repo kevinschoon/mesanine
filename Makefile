@@ -10,15 +10,11 @@ AWS_BUCKET := mesanine-ami
 IGLDFLAGS= -X github.com/coreos/ignition/internal/version.Raw=mesanine \
 					 -X github.com/coreos/ignition/internal/platform.Raw=linuxkit \
 					 -extldflags \"-fno-PIC -static\"
-
 # TODO
 GAFFER_SRC := /home/kevin/repos/github.com/mesanine/gaffer
 
 OEM := "qemu"
-ifeq ($(MAKECMDGOALS),push-aws-master)
-OEM := "ec2"
-endif
-ifeq ($(MAKECMDGOALS),push-aws-agent)
+ifeq ($(MAKECMDGOALS),push-aws)
 OEM := "ec2"
 endif
 
@@ -55,7 +51,6 @@ submodules:
 	#git submodule foreach git pull
 
 $(TARGET)/mesanine.ign:
-	cat ./config/etc/gaffer.json |jq .
 	go run ./tools/metadata/metadata.go ./config > $@ 
 
 $(TARGET)/mesanine: write-oem packages

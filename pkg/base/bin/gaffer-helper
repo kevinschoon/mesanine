@@ -123,7 +123,7 @@ ip link set lo up
 
 dhcpcd --oneshot --waitip --nobackground --config /etc/dhcpcd.conf
 
-ignition --stage disks --oem $(cat /oem)
+ignition --oem $(cat /oem) --stage disks
 ignition --oem $(cat /oem) --stage files
 
 # TODO: Need to ensure platforms like AWS have persistent 
