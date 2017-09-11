@@ -17,6 +17,9 @@ OEM := "qemu"
 ifeq ($(MAKECMDGOALS),push-aws)
 OEM := "ec2"
 endif
+ifeq ($(MACCMDGOALS),docker)
+OEM := "file"
+endif
 
 .PHONY: \
 	all \
@@ -67,9 +70,9 @@ $(TARGET)/fs: $(TARGET)/mesanine.tar
 	mkdir $(TARGET)/fs 2>/dev/null || true
 	tar -C $(TARGET)/fs -xf $(TARGET)/mesanine.tar
 
-docker: $(TARGET)/fs
-	echo -e "FROM scratch\nCOPY fs/ /" > $(TARGET)/Dockerfile
-	docker build -t mesanine/mesanine:latest $(TARGET)
+docker: write-oem $(TARGET)/fs
+	cp -v Dockerfile $(TARGET)/
+	docker build -t mesanine/mesanine $(TARGET)
 
 run: $(TARGET)/mesanine ignition $(TARGET)/mesanine.ign run-cmd
 
