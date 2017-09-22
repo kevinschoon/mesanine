@@ -10,8 +10,12 @@ AWS_BUCKET := mesanine-ami
 IGLDFLAGS= -X github.com/coreos/ignition/internal/version.Raw=mesanine \
 					 -X github.com/coreos/ignition/internal/platform.Raw=linuxkit \
 					 -extldflags \"-fno-PIC -static\"
-# TODO
 GAFFER_SRC := /home/kevin/repos/github.com/mesanine/gaffer
+DOCKERFILE := FROM scratch \
+\\nCOPY fs/ / \
+\\nRUN ignition -stage files -oem file \
+\\nCMD [\"gaffer\", \"--config=/etc/gaffer.json\", \"launch\", \"--move-root\"]
+
 
 OEM := "qemu"
 ifeq ($(MAKECMDGOALS),push-aws)
@@ -70,8 +74,11 @@ $(TARGET)/fs: $(TARGET)/mesanine.tar
 	mkdir $(TARGET)/fs 2>/dev/null || true
 	tar -C $(TARGET)/fs -xf $(TARGET)/mesanine.tar
 
-docker: write-oem $(TARGET)/fs
-	cp -v Dockerfile $(TARGET)/
+$(TARGET)/Dockerfile:
+	echo -e $(DOCKERFILE) > $(TARGET)/Dockerfile
+
+docker: write-oem $(TARGET)/fs $(TARGET)/Dockerfile $(TARGET)/mesanine.ign
+	cp -v $(TARGET)/mesanine.ign $(TARGET)/fs/config.ign
 	docker build -t mesanine/mesanine $(TARGET)
 
 run: $(TARGET)/mesanine ignition $(TARGET)/mesanine.ign run-cmd
