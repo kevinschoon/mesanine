@@ -1,4 +1,6 @@
-<img width="300px" src="https://raw.githubusercontent.com/mesanine/www/master/mesanine/static/images/logo.png" alt="logo"/>
+<img width="300px" src="https://raw.githubusercontent.com/mesanine/www/master/static/images/logo.png" alt="logo"/>
+
+[![CircleCI](https://img.shields.io/circleci/project/github/mesanine/mesanine.svg)]()
 
 ## What Is Mesanine?
 
